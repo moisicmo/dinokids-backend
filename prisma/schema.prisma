@@ -1,0 +1,230 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Permissions {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  module              String              @db.VarChar(255)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  roles               Roles[]
+}
+
+model Roles {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  permissions         Permissions[]
+  staff               Staffs[]
+}
+
+
+model Users {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  lastName            String              @db.VarChar(255)
+  email               String              @unique
+  emailValidated      Boolean             @default(false)
+  image               String?             @db.VarChar(255)
+  phone               String              @db.VarChar(255)
+  password            String              @db.VarChar(255)
+  codeValidation      String?             @unique
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  staff               Staffs?
+  student             Students?
+  teacher             Teachers?
+}
+
+model Staffs {
+  id                  Int                 @id @default(autoincrement())
+  userId              Int                 @unique
+  roleId              Int                 @db.Integer
+  state               Boolean             @default(true)
+  superStaff          Boolean             @default(false)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  user                Users               @relation(fields: [userId], references: [id])
+  role                Roles               @relation(fields: [roleId], references: [id])
+  inscriptions        Inscriptions[]
+  projects            Projects[]
+}
+
+model Students {
+  id                  Int                 @id @default(autoincrement())
+  userId              Int                 @unique
+  code                String              @unique
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  user                Users               @relation(fields: [userId], references: [id])
+  inscriptions        Inscriptions[]
+  projects            Projects[]
+}
+
+model Tutors {
+  id                  Int                 @id @default(autoincrement())
+  userId              Int                 @unique
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+model Teachers {
+  id                  Int                 @id @default(autoincrement())
+  userId              Int                 @unique
+  ci                  String              @unique
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  user                Users               @relation(fields: [userId], references: [id])
+  parallels           Parallels[]
+  projectHistories    ProjectHistories[]
+}
+
+model Subjects {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  code                String              @db.VarChar(255)
+  semester            Int                 @db.Integer
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  parallels           Parallels[]
+  projectHistories    ProjectHistories[]
+}
+
+model Parallels {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  teacherId           Int                 @db.Integer
+  subjectId           Int                 @db.Integer
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  teacher             Teachers            @relation(fields: [teacherId], references: [id])
+  subject             Subjects            @relation(fields: [subjectId], references: [id])
+  projectHistories    ProjectHistories[]
+  projects            Projects[]
+}
+
+model Stages {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  start               DateTime            @db.Date
+  end                 DateTime            @db.Date
+  weighing            Int                 @db.Integer
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  requirements        Requirements[]
+  seasons             Seasons[]
+}
+
+model Requirements {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  description         String              @db.VarChar(255)
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  stages              Stages[]
+}
+
+model TypeProjects {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  projects            Projects[]
+}
+
+model Categories {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  projects            Projects[]
+}
+
+model Seasons {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(255)
+  price               Int                 @db.Integer
+  start               DateTime            @db.Date
+  end                 DateTime            @db.Date
+  enableState         Boolean             @default(false)
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  stages              Stages[]
+  inscriptions        Inscriptions[]
+  projects            Projects[]
+}
+
+model Inscriptions {
+  id                  Int                 @id @default(autoincrement())
+  studentId           Int                 @db.Integer
+  staffId             Int                 @db.Integer
+  seasonId            Int                 @db.Integer
+  total               Int                 @db.Integer
+  amountDelivered     Int                 @db.Integer
+  returnedAmount      Int                 @db.Integer
+  url                 String              @db.VarChar(255)
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  student             Students            @relation(fields: [studentId], references: [id])
+  staff               Staffs              @relation(fields: [staffId], references: [id])
+  season              Seasons             @relation(fields: [seasonId], references: [id])
+}
+
+model Projects {
+  id                  Int                 @id @default(autoincrement())
+  categoryId          Int                 @db.Integer
+  typeProjectId       Int                 @db.Integer
+  staffId             Int                 @db.Integer
+  seasonId            Int                 @db.Integer
+  title               String              @db.VarChar(255)
+  code                String              @unique
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  category            Categories          @relation(fields: [categoryId], references: [id])
+  typeProject         TypeProjects        @relation(fields: [typeProjectId], references: [id])
+  staff               Staffs              @relation(fields: [staffId], references: [id])
+  season              Seasons             @relation(fields: [seasonId], references: [id])
+  students            Students[]
+  projectHistories    ProjectHistories[]
+  parallels           Parallels[]
+}
+
+model ProjectHistories {
+  id                   Int                @id @default(autoincrement())
+  parallelId           Int                @db.Integer
+  projectId            Int                @db.Integer
+  subjectId            Int                @db.Integer
+  teacherId            Int                @db.Integer
+  parallel             Parallels          @relation(fields: [parallelId], references: [id])
+  project              Projects           @relation(fields: [projectId], references: [id])
+  subject              Subjects           @relation(fields: [subjectId], references: [id])
+  teacher              Teachers           @relation(fields: [teacherId], references: [id])
+}
