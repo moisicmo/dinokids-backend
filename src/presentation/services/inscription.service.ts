@@ -36,7 +36,7 @@ export class InscriptionService {
                 user: true,
               },
             },
-            season: true,
+            subject: true,
           },
         }),
       ]);
@@ -65,23 +65,9 @@ export class InscriptionService {
 
   async createInscription(inscriptionDto: InscriptionDto, user: UserEntity) {
     try {
-      const season = await prisma.seasons.findFirst({
-        where: { enableState: true },
-        include: {
-          stages: {
-            include: {
-              requirements: true,
-            },
-          },
-        },
-      });
-      if (!season) throw CustomError.badRequest('Habilite una temporada');
       const { ...createInscriptionDto } = inscriptionDto;
       const inscriptionExists = await prisma.inscriptions.findFirst({
         where: {
-          season: {
-            id: season.id,
-          },
           student: {
             id: createInscriptionDto.studentId,
           },
@@ -93,11 +79,7 @@ export class InscriptionService {
       const inscription = await prisma.inscriptions.create({
         data: {
           ...createInscriptionDto,
-          total: season.price,
           staffId: user.id,
-          seasonId: season.id,
-          returnedAmount: season.price - createInscriptionDto.amountDelivered,
-          url: '',
         },
         include: {
           student: {
@@ -110,7 +92,7 @@ export class InscriptionService {
               user: true,
             },
           },
-          season: true,
+          subject: true,
         },
       });
       const { ...inscriptionEntity } = await InscriptionEntity.fromObject(inscription);
@@ -132,29 +114,18 @@ export class InscriptionService {
     inscriptionId: number
   ) {
     try {
-      const season = await prisma.seasons.findFirst({
-        where: { enableState: true },
-        include: {
-          stages: {
-            include: {
-              requirements: true,
-            },
-          },
-        },
-      });
-      if (!season) throw CustomError.badRequest('Habilite una temporada');
       const { ...updateInscriptionDto } = inscriptionDto;
       const existingInscriptionWithName = await prisma.inscriptions.findFirst({
         where: {
           AND: [
             {
-              season: {
-                id: season.id,
+              student: {
+                id: updateInscriptionDto.studentId,
               },
             },
             {
-              student: {
-                id: updateInscriptionDto.studentId,
+              subject: {
+                id: updateInscriptionDto.subjectId,
               },
             },
             { NOT: { id: inscriptionId } },
@@ -163,14 +134,14 @@ export class InscriptionService {
       });
       if (existingInscriptionWithName)
         throw CustomError.badRequest(
-          'Ya existe una inscripción con el estudiante y en la misma temporada'
+          'Ya existe una inscripción con el estudiante y en la misma materia'
         );
       const inscriptionExists = await prisma.inscriptions.findFirst({
         where: { id: inscriptionId },
         include: {
           student: true,
           staff: true,
-          season: true,
+          subject:true,
         },
       });
       if (!inscriptionExists)
@@ -180,14 +151,12 @@ export class InscriptionService {
         where: { id: inscriptionId },
         data: {
           ...updateInscriptionDto,
-          total: season.price,
-          seasonId: season.id,
-          returnedAmount: season.price - updateInscriptionDto.amountDelivered,
+          total: inscriptionDto.total,
         },
         include: {
           student: true,
           staff: true,
-          season: true,
+          subject:true,
         },
       });
       const { ...inscriptionEntity } = InscriptionEntity.fromObject(
@@ -205,7 +174,7 @@ export class InscriptionService {
       include: {
         student: true,
         staff: true,
-        season: true,
+        subject:true,
       },
     });
     if (!inscriptionExists)
@@ -219,7 +188,7 @@ export class InscriptionService {
         include: {
           student: true,
           staff: true,
-          season: true,
+          subject:true,
         },
       });
 

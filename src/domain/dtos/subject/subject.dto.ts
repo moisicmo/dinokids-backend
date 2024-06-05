@@ -1,21 +1,21 @@
 export class SubjectDto {
 
   private constructor(
+    public readonly categoryId: number,
     public readonly name: string,
     public readonly code: string,
-    public readonly semester: number,
-  ) {}
+  ) { }
 
 
-  static body( object: { [key: string]: any } ):[string?, SubjectDto?] {
+  static body(object: { [key: string]: any }): [string?, SubjectDto?] {
 
-    const { name, code, semester } = object;
+    const { categoryId, name, code } = object;
 
-    if ( !name ) return ['El nombre es obligatorio'];
-    if ( !code) return ['El código es obligatorio'];
-    if ( !semester) return ['El semestre es obligatorio'];
+    if (!categoryId) return ['El id de la categoria es obligatoria'];
+    if (!name) return ['El nombre es obligatorio'];
+    if (!code) return ['El código es obligatorio'];
 
-    return [undefined, new SubjectDto(name,code,semester)];
+    return [undefined, new SubjectDto(categoryId, name, code)];
 
   }
 

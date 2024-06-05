@@ -6,6 +6,10 @@ export const envs = {
 
   PORT: get('PORT').required().asPortNumber(),
   
+  NAME_SEED: get('NAME_SEED').required().asString(),
+  LAST_NAME_SEED: get('LAST_NAME_SEED').required().asString(),
+  EMAIL_SEED: get('EMAIL_SEED').required().asString(),
+  PHONE_SEED: get('PHONE_SEED').required().asString(),
 
   JWT_SEED: get('JWT_SEED').required().asString(),
 

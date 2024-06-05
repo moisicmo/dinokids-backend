@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { bcryptAdapter } from '../src/config';
-
+import { bcryptAdapter, envs } from '../src/config';
 
 async function main() {
   const prisma = new PrismaClient();
@@ -9,11 +8,11 @@ async function main() {
 
     const user = await prisma.users.create({
       data: {
-        name: 'Moises',
-        lastName: 'Ochoa',
-        email: 'moisic.mo@gmail.com',
-        phone: '59173735766',
-        password: bcryptAdapter.hash('8312915'),
+        name: envs.NAME_SEED,
+        lastName: envs.LAST_NAME_SEED,
+        email: envs.EMAIL_SEED,
+        phone: envs.PHONE_SEED,
+        password: bcryptAdapter.hash(envs.EMAIL_SEED),
         emailValidated: true,
       },
     });

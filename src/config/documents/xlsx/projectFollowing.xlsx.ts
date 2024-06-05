@@ -1,8 +1,8 @@
-import { ProjectEntity } from '../../../domain';
+// import { ProjectEntity } from '../../../domain';
 import ExcelJS from 'exceljs';
 
 export const projectFollowingXlsx = async (
-  projectEntity: ProjectEntity
+  // projectEntity: ProjectEntity
 ): Promise<Uint8Array> => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Formulario');

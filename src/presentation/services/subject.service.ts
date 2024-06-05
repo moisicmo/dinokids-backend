@@ -11,7 +11,7 @@ import {
 const prisma = new PrismaClient();
 
 export class SubjectService {
-  constructor() {}
+  constructor() { }
 
   async getSubjects(paginationDto: PaginationDto) {
     const { page, limit } = paginationDto;
@@ -50,7 +50,7 @@ export class SubjectService {
 
   async createSubject(createSubjectDto: SubjectDto, user: UserEntity) {
     const subjectExists = await prisma.subjects.findFirst({
-      where: { name: createSubjectDto.name, state: true },
+      where: { name: createSubjectDto.name, state: true, },
     });
     if (subjectExists) throw CustomError.badRequest('La materia ya existe');
 

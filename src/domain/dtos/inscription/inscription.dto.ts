@@ -1,18 +1,19 @@
 export class InscriptionDto {
 
   private constructor(
-    public readonly amountDelivered: number,
     public readonly studentId: number,
+    public readonly subjectId: number,
+    public readonly total: number,
   ) { }
 
 
   static body(object: { [key: string]: any }): [string?, InscriptionDto?] {
 
-    const {amountDelivered, studentId } = object;
+    const {studentId,subjectId,total} = object;
 
-    if (!amountDelivered) return ['El monto entregado es obligatorio'];
     if (!studentId) return ['El id del estudiante es obligatorio'];
+    if (!subjectId) return ['El id de la materia es obligatorio'];
 
-    return [undefined, new InscriptionDto(amountDelivered, studentId)];
+    return [undefined, new InscriptionDto(studentId,subjectId,total)];
   }
 }
