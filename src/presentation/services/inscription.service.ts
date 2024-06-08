@@ -36,7 +36,12 @@ export class InscriptionService {
                 user: true,
               },
             },
-            subject: true,
+            subject: {
+              include:{
+                category:true,
+              }
+            },
+            branch: true,
           },
         }),
       ]);
@@ -68,9 +73,9 @@ export class InscriptionService {
       const { ...createInscriptionDto } = inscriptionDto;
       const inscriptionExists = await prisma.inscriptions.findFirst({
         where: {
-          student: {
-            id: createInscriptionDto.studentId,
-          },
+          studentId:createInscriptionDto.studentId,
+          branchId: createInscriptionDto.branchId,
+          subjectId: createInscriptionDto.subjectId,
         },
       });
       if (inscriptionExists)
@@ -80,6 +85,7 @@ export class InscriptionService {
         data: {
           ...createInscriptionDto,
           staffId: user.id,
+          total: 100,
         },
         include: {
           student: {
@@ -92,7 +98,12 @@ export class InscriptionService {
               user: true,
             },
           },
-          subject: true,
+          subject: {
+            include:{
+              category:true,
+            }
+          },
+          branch: true,
         },
       });
       const { ...inscriptionEntity } = await InscriptionEntity.fromObject(inscription);
@@ -119,14 +130,9 @@ export class InscriptionService {
         where: {
           AND: [
             {
-              student: {
-                id: updateInscriptionDto.studentId,
-              },
-            },
-            {
-              subject: {
-                id: updateInscriptionDto.subjectId,
-              },
+              studentId:updateInscriptionDto.studentId,
+              branchId: updateInscriptionDto.branchId,
+              subjectId: updateInscriptionDto.subjectId,
             },
             { NOT: { id: inscriptionId } },
           ],
@@ -141,7 +147,7 @@ export class InscriptionService {
         include: {
           student: true,
           staff: true,
-          subject:true,
+          subject: true,
         },
       });
       if (!inscriptionExists)
@@ -151,12 +157,24 @@ export class InscriptionService {
         where: { id: inscriptionId },
         data: {
           ...updateInscriptionDto,
-          total: inscriptionDto.total,
+          total: 100,
         },
         include: {
-          student: true,
-          staff: true,
-          subject:true,
+          student: {
+            include: {
+              user: true,
+            },
+          },
+          staff: {
+            include: {
+              user: true,
+            },
+          },
+          subject: {
+            include:{
+              category:true,
+            }
+          },
         },
       });
       const { ...inscriptionEntity } = InscriptionEntity.fromObject(
@@ -174,7 +192,7 @@ export class InscriptionService {
       include: {
         student: true,
         staff: true,
-        subject:true,
+        subject: true,
       },
     });
     if (!inscriptionExists)
@@ -184,12 +202,7 @@ export class InscriptionService {
         where: { id: inscriptionId },
         data: {
           state: false,
-        },
-        include: {
-          student: true,
-          staff: true,
-          subject:true,
-        },
+        }
       });
 
       return CustomSuccessful.response({ message: 'Inscripción eliminado' });

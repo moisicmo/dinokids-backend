@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { Authroutes } from './auth/routes';
+import { BranchRoutes } from './branch/routes';
 import { StaffRoutes } from './staff/routes';
 import { RoleRoutes } from './role/routes';
 import { PermissionRoutes } from './permission/routes';
@@ -9,6 +10,7 @@ import { TeacherRoutes } from './teacher/routes';
 import { SubjectRoutes } from './subject/routes';
 import { CategoryRoutes } from './category/routes';
 import { InscriptionRoutes } from './inscription/routes';
+import { RoomRoutes } from './room/routes';
 export class AppRoutes {
 
 
@@ -18,6 +20,7 @@ export class AppRoutes {
 
     // Definir las rutas
     router.use('/api/auth', Authroutes.routes);
+    router.use('/api/branch', BranchRoutes.routes);
     router.use('/api/staff', StaffRoutes.routes);
     router.use('/api/role', RoleRoutes.routes);
     router.use('/api/permission', PermissionRoutes.routes);
@@ -26,6 +29,7 @@ export class AppRoutes {
     router.use('/api/subject', SubjectRoutes.routes);
     router.use('/api/category', CategoryRoutes.routes);
     router.use('/api/inscription', InscriptionRoutes.routes);
+    router.use('/api/room', RoomRoutes.routes);
 
     return router;
   }

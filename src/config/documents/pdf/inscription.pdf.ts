@@ -30,7 +30,7 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
           widths: ['*', '*'],
           body: [
             [
-              { text: 'UNIVERSIDAD PRIVADA FRANZ TAMAYO', style: 'styleLeft' },
+              { text: 'DINO KIDS', style: 'styleLeft' },
               {
                 text: `COMPROBANTE N° ${inscriptionEntity.id}`,
                 style: 'styleRight',
@@ -38,19 +38,12 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
             ],
             [
               {
-                text: 'FACULTAD DE INGENIERÍA',
+                text: 'SUCURSAL ',
                 style: 'styleLeft',
                 colSpan: 2,
               },
             ],
-            [
-              {
-                text: 'INGENIERÍA DE SISTEMAS',
-                style: 'styleLeft',
-                colSpan: 2,
-              },
-            ],
-            [{ text: 'CENTRO DE ESTUDIANTES', style: 'styleLeft', colSpan: 2 }],
+            // [{ text: 'CENTRO DE ESTUDIANTES', style: 'styleLeft', colSpan: 2 }],
           ],
         },
       },

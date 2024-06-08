@@ -22,6 +22,9 @@ export class SubjectService {
           where: {
             state: true,
           },
+          include: {
+            category: true,
+          },
           skip: (page - 1) * limit,
           take: limit,
         }),
@@ -59,6 +62,9 @@ export class SubjectService {
         data: {
           ...createSubjectDto,
         },
+        include: {
+          category: true,
+        },
       });
 
       const { ...subjectEntity } = SubjectEntity.fromObject(subject);
@@ -77,6 +83,9 @@ export class SubjectService {
       where: {
         AND: [{ name: updateSubjectDto.name }, { NOT: { id: subjectId } }],
       },
+      include: {
+        category: true,
+      },
     });
     if (existingsubjectWithName)
       throw CustomError.badRequest('Ya existe una materia con el mismo nombre');
@@ -91,6 +100,9 @@ export class SubjectService {
         where: { id: subjectId },
         data: {
           ...updateSubjectDto,
+        },
+        include: {
+          category: true,
         },
       });
       const { ...subjectEntity } = SubjectEntity.fromObject(subject);
@@ -110,6 +122,9 @@ export class SubjectService {
         where: { id: subjectId },
         data: {
           state: false,
+        },
+        include: {
+          category: true,
         },
       });
       return CustomSuccessful.response({ message: 'Materia eliminado' });

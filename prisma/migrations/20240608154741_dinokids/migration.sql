@@ -2,6 +2,8 @@
 CREATE TABLE "Branches" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(255) NOT NULL,
+    "address" VARCHAR(255) NOT NULL,
+    "phone" VARCHAR(255) NOT NULL,
     "state" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -104,8 +106,9 @@ CREATE TABLE "Inscriptions" (
     "studentId" INTEGER NOT NULL,
     "staffId" INTEGER NOT NULL,
     "subjectId" INTEGER NOT NULL,
+    "branchId" INTEGER NOT NULL,
     "total" INTEGER NOT NULL,
-    "url" VARCHAR(255) NOT NULL,
+    "url" VARCHAR(255),
     "state" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -119,7 +122,6 @@ CREATE TABLE "Subjects" (
     "categoryId" INTEGER NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "code" VARCHAR(255) NOT NULL,
-    "semester" INTEGER NOT NULL,
     "state" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -306,6 +308,9 @@ ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_staffId_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subjects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Subjects" ADD CONSTRAINT "Subjects_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -16,6 +16,8 @@ datasource db {
 model Branches {
   id                  Int                 @id @default(autoincrement())
   name                String              @db.VarChar(255)
+  address             String              @db.VarChar(255)
+  phone               String              @db.VarChar(255)
   state               Boolean             @default(true)
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
@@ -24,6 +26,7 @@ model Branches {
   students            Students[]
   teachers            Teachers[]
   staffs              Staffs[]
+  inscriptions        Inscriptions[]
 }
 
 model Users {
@@ -118,6 +121,7 @@ model Inscriptions {
   studentId           Int                 @db.Integer
   staffId             Int                 @db.Integer
   subjectId           Int                 @db.Integer
+  branchId            Int                 @db.Integer
   total               Int                 @db.Integer
   url                 String?             @db.VarChar(255)
   state               Boolean             @default(true)
@@ -126,6 +130,7 @@ model Inscriptions {
   student             Students            @relation(fields: [studentId], references: [id])
   staff               Staffs              @relation(fields: [staffId], references: [id])
   subject             Subjects            @relation(fields: [subjectId], references: [id])
+  branch              Branches            @relation(fields: [branchId], references: [id])
 }
 
 model Subjects {
