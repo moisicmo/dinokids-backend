@@ -62,6 +62,9 @@ export class RoomService {
         data: {
           ...createRoomDto,
         },
+        include:{
+          branch:true,
+        },
       });
 
       const { ...roomEntity } = RoomEntity.fromObject(room);
@@ -96,6 +99,9 @@ export class RoomService {
         where: { id: roomId },
         data: {
           ...updateRoom,
+        },
+        include:{
+          branch:true,
         },
       });
       const { ...roomEntity } = RoomEntity.fromObject(room);
