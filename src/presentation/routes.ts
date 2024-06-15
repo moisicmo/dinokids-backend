@@ -11,6 +11,7 @@ import { SubjectRoutes } from './subject/routes';
 import { CategoryRoutes } from './category/routes';
 import { InscriptionRoutes } from './inscription/routes';
 import { RoomRoutes } from './room/routes';
+import { PriceRoutes } from './price/routes';
 export class AppRoutes {
 
 
@@ -30,6 +31,9 @@ export class AppRoutes {
     router.use('/api/category', CategoryRoutes.routes);
     router.use('/api/inscription', InscriptionRoutes.routes);
     router.use('/api/room', RoomRoutes.routes);
+
+    router.use('/api/price', PriceRoutes.routes);
+
 
     return router;
   }
