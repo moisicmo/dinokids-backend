@@ -12,6 +12,7 @@ import { CategoryRoutes } from './category/routes';
 import { InscriptionRoutes } from './inscription/routes';
 import { RoomRoutes } from './room/routes';
 import { PriceRoutes } from './price/routes';
+import { MonthlyFeeRoutes } from './monthlyFee.ts/routes';
 export class AppRoutes {
 
 
@@ -33,7 +34,7 @@ export class AppRoutes {
     router.use('/api/room', RoomRoutes.routes);
 
     router.use('/api/price', PriceRoutes.routes);
-
+    router.use('/api/monthlyfee', MonthlyFeeRoutes.routes);
 
     return router;
   }

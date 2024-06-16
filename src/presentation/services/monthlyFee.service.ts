@@ -1,17 +1,19 @@
 import { PrismaClient } from '@prisma/client';
-import { StaffDto, CustomError, PaginationDto, CustomSuccessful, } from '../../domain';
-import { TPriceInput } from '../../schemas/price';
-import { bcryptAdapter } from '../../config';
-import * as v from 'valibot';
+import { CustomError, PaginationDto, CustomSuccessful, } from '../../domain';
+import { TMonthlyfeeInput } from '../../schemas/monthlyFee.schema';
 
 const prisma = new PrismaClient();
 
-export async function createPrice(input: TPriceInput) {
+export async function createMonthlyFee(input: TMonthlyfeeInput) {
 	try {
-		const res = await prisma.price.create({data:{
-      classesId: input.classesId,
-      inscription: input.inscription,
-      month: input.month,
+		const res = await prisma.monthlyFee.create({data:{
+      priceId: input.priceId,
+      startDate: new Date(input.startDate),
+      endDate: new Date(input.endDate),
+      totalAmount: input.totalAmount,
+      amountPending:  input.amountPending,
+      studentId: input.studentId,
+      amountPaid: input.amountPaid,
       state: input.state,
     }});
     return res;
@@ -21,18 +23,18 @@ export async function createPrice(input: TPriceInput) {
 	}
 }
 
-export async function getOnePrice(id:number) {
+export async function getOneMonthlyFee(id:number) {
   try {
-    const price = await prisma.price.findFirst({where: {id}})
-    console.log(price)
-    return CustomSuccessful.response({ result: {price}});
+    const monthlyFee = await prisma.monthlyFee.findFirst({where: {id}})
+    console.log(monthlyFee)
+    return CustomSuccessful.response({ result: {monthlyFee} });
   } catch (error:any) {
     console.log(error.message)
     throw CustomError.internalServer('Internal Server Error');
   }
 }
 
-export async function getPricesByIdClasses(id:number, paginationDto: PaginationDto) {
+/* export async function getPricesByIdClasses(id:number, paginationDto: PaginationDto) {
   const { page, limit } = paginationDto;
   try {
 
@@ -61,9 +63,9 @@ export async function getPricesByIdClasses(id:number, paginationDto: PaginationD
   } catch (error) {
     throw CustomError.internalServer('Internal Server Error');
   }
-}
+} */
 
-export async function getPrices(paginationDto: PaginationDto) {
+/* export async function getPrices(paginationDto: PaginationDto) {
   const { page, limit } = paginationDto;
   try {
 
@@ -94,14 +96,17 @@ export async function getPrices(paginationDto: PaginationDto) {
   } catch (error) {
     throw CustomError.internalServer('Internal Server Error');
   }
-}
+} */
 
-export async function updatePrice(id:number,input: TPriceInput) {
+export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
 	try {
-		const res = await prisma.price.update({where:{id},data:{
-      classesId: input.classesId,
-      inscription: input.inscription,
-      month: input.month,
+		const res = await prisma.monthlyFee.update({where:{id},data:{
+      priceId: input.priceId,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      totalAmount: input.totalAmount,
+      studentId: input.studentId,
+      amountPaid: input.amountPaid,
       state: input.state,
     }});
     return CustomSuccessful.response({ result: res });
@@ -111,7 +116,7 @@ export async function updatePrice(id:number,input: TPriceInput) {
 	}
 }
 
-export async function deletePrice(id:number) {
+export async function deleteMonthlyFee(id:number) {
 	try {
 		const res = await prisma.price.delete({where:{id}});
     return CustomSuccessful.response({ result: { message: 'Price Classes eliminado' } });

@@ -160,4 +160,17 @@ export class StudentService {
       throw CustomError.internalServer(`${error}`);
     }
   }
+
+  async getStudent(studentId: number) {
+    try {
+      const student = await prisma.students.findFirst({where: {id: studentId}})
+      return CustomSuccessful.response({
+        result: {
+          student
+        },
+      });
+    } catch (error) {
+      throw CustomError.internalServer('Internal Server Error');
+    }
+  }
 }

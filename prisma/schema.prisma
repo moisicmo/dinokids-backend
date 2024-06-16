@@ -215,14 +215,13 @@ model Price{
 model MonthlyFee {
   id           Int      @id @default(autoincrement())
   priceId      Int      @db.Integer
-  startDate    DateTime
-  endDate      DateTime
+  startDate    DateTime @db.Date
+  endDate      DateTime @db.Date
   totalAmount  Decimal
   studentId    Int
-  
   amountPaid   Decimal  @default(0.00)
+  amountPending Decimal @default(0.00)
   state        Boolean  @default(true)
-
   student      Students  @relation(fields: [studentId], references: [id])
   price        Price  @relation(fields: [priceId], references: [id])
 
