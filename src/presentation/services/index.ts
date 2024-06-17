@@ -10,3 +10,5 @@ export * from './student.service';
 export * from './teacher.service';
 export * from './inscription.service';
 export * from './room.service'; 
+export * from './price.service';
+export * from './monthlyFee.service';

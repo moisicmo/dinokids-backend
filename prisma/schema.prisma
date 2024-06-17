@@ -93,6 +93,8 @@ model Students {
   branches            Branches[]
   classes             Classes[]
   tutors              Tutors[]
+  monthlyFeeds        MonthlyFee[]
+  invoice             Invoice[] 
 }
 
 model Tutors {
@@ -193,4 +195,73 @@ model Classes {
   teacher             Teachers            @relation(fields: [teacherId],references: [id])
   module              Modules             @relation(fields: [moduleId],references: [id])
   students            Students[]
+  price              Price[]
+
+}
+
+model Price{
+  id                  Int                 @id @default(autoincrement())
+  classesId           Int                 @db.Integer
+  inscription         Float             @default(0.00)
+  month               Float             @default(0.00)
+  state               Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  classes             Classes             @relation(fields: [classesId],references: [id])
+
+  monthlyFeeds        MonthlyFee[]
+}
+
+model MonthlyFee {
+  id           Int      @id @default(autoincrement())
+  priceId      Int      @db.Integer
+  startDate    DateTime @db.Date
+  endDate      DateTime @db.Date
+  totalAmount  Float @default(0.00)
+  studentId    Int
+  amountPaid   Float  @default(0.00)
+  amountPending Float @default(0.00)
+  state        Boolean  @default(true)
+  student      Students  @relation(fields: [studentId], references: [id])
+  price        Price  @relation(fields: [priceId], references: [id])
+
+  payments     MonthlyFeePayment[]
+  invoices     Invoice[]
+}
+
+model MonthlyFeePayment {
+  id              Int      @id @default(autoincrement())
+  paymentDate     DateTime
+  amount          Decimal
+  commitmentDate  DateTime?
+  monthlyFeeID    Int
+  monthlyFee      MonthlyFee @relation(fields: [monthlyFeeID], references: [id])
+
+  paimentDetails PaymentDetail[]
+}
+
+model PaymentDetail {
+  id                Int     @id @default(autoincrement())
+  paymentID         Int
+  transactionNumber String?
+  payMethod         String?
+  payment          MonthlyFeePayment @relation(fields: [paymentID], references: [id])
+  
+}
+
+model Invoice {
+  id                 Int      @id @default(autoincrement())
+  invoiceNumber      String
+  authorizationNumber String
+  controlCode        String
+  issueDate          DateTime
+  dueDate            DateTime?
+  totalAmount        Decimal
+  issuerNIT          String
+  buyerNIT           String
+  buyerName          String
+  studentID          Int
+  student            Students  @relation(fields: [studentID], references: [id])
+  monthlyFeeID       Int?
+  monthlyFee         MonthlyFee? @relation(fields: [monthlyFeeID], references: [id])
 }
