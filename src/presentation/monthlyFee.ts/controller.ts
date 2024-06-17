@@ -1,7 +1,7 @@
 import { Response, Request } from 'express';
 import { CustomError, PaginationDto, StaffDto } from '../../domain';
 import {createMonthlyFee, getOneMonthlyFee, updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice}  from '../services';
-import { TMonthlyfeeInput } from '../../schemas/monthlyFee.schema';
+import { TMonthlyfeeInput, TMonthlyfeeOutput } from '../../schemas/monthlyFee.schema';
 import { StudentService } from '../services';
 import { TPriceOutput } from '../../schemas/price';
 
@@ -29,7 +29,7 @@ export async function createMonthlyFeeCtrl(
       //control pay month
       let totalAmount = dataPrice.month;
       let amountPending = dataPrice.month - body.amountPaid;
-      if (amountPending < 0 ) throw CustomError.badRequest('revise el pago realizado, la institucion no puede salir deviendo');
+      if (amountPending < 0 ) throw CustomError.badRequest(`revise el pago realizado, la institucion no puede salir deviendo, total a pargar de la clase:${dataPrice.month}`);
       let state = amountPending <= 0 ? true : false;
     // find student
 
@@ -77,7 +77,25 @@ export const updateMonthlyFeeCtrl = async (
   const id = req.params.id
   console.log(id)
   try {
-    const  MonthlyFee = await updateMonthlyFee(parseInt(id),body )
+      // find monthly fee
+      const  data = await getOneMonthlyFee(parseInt(id)) as any;
+      const dataMonthlyFee:TMonthlyfeeOutput = data.monthlyFee;
+     if (!dataMonthlyFee) throw CustomError.badRequest('El id de la cuota mensual a modificar no existe');
+      //control pay month
+      let amountPaid = await dataMonthlyFee.amountPaid + body.amountPaid;
+      console.log('amountPaid:', amountPaid)
+      let amountPending = await dataMonthlyFee.totalAmount - amountPaid;
+      console.log('amountPending:', amountPending);
+
+      if (amountPending < 0 ) throw CustomError.badRequest(`revise el pago realizado, la institucion no puede salir deviendo, pago pendiente la clase:${dataMonthlyFee.amountPending}`);
+
+      body.amountPaid = amountPaid;
+      body.amountPending = amountPending;
+      body.state = amountPending <= 0 ? true : false;
+
+      
+
+    const  MonthlyFee = await updateMonthlyFee(parseInt(id),{...body} )
     return res.status(201).json(MonthlyFee)
   } catch (error) {
     handleError(error, res)

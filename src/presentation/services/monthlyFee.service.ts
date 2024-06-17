@@ -26,7 +26,7 @@ export async function createMonthlyFee(input: TMonthlyfeeInput) {
 export async function getOneMonthlyFee(id:number) {
   try {
     const monthlyFee = await prisma.monthlyFee.findFirst({where: {id}})
-    console.log(monthlyFee)
+    console.log("monthlyFee:",monthlyFee)
     return CustomSuccessful.response({ result: {monthlyFee} });
   } catch (error:any) {
     console.log(error.message)
@@ -102,9 +102,10 @@ export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
 	try {
 		const res = await prisma.monthlyFee.update({where:{id},data:{
       priceId: input.priceId,
-      startDate: input.startDate,
-      endDate: input.endDate,
+      startDate: new Date(input.startDate),
+      endDate: new Date(input.endDate),
       totalAmount: input.totalAmount,
+      amountPending: input.amountPending,
       studentId: input.studentId,
       amountPaid: input.amountPaid,
       state: input.state,
@@ -118,8 +119,8 @@ export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
 
 export async function deleteMonthlyFee(id:number) {
 	try {
-		const res = await prisma.price.delete({where:{id}});
-    return CustomSuccessful.response({ result: { message: 'Price Classes eliminado' } });
+		const res = await prisma.monthlyFee.delete({where:{id}});
+    return CustomSuccessful.response({ result: { message: 'Cuota Mensual Eliminado' } });
 	} catch (error) {
 		console.log(error)
 		throw CustomError.internalServer('Internal Server Error');

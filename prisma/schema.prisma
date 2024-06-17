@@ -202,8 +202,8 @@ model Classes {
 model Price{
   id                  Int                 @id @default(autoincrement())
   classesId           Int                 @db.Integer
-  inscription         Int                 @db.Integer
-  month               Int                 @db.Integer
+  inscription         Float             @default(0.00)
+  month               Float             @default(0.00)
   state               Boolean             @default(true)
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
@@ -217,10 +217,10 @@ model MonthlyFee {
   priceId      Int      @db.Integer
   startDate    DateTime @db.Date
   endDate      DateTime @db.Date
-  totalAmount  Decimal
+  totalAmount  Float @default(0.00)
   studentId    Int
-  amountPaid   Decimal  @default(0.00)
-  amountPending Decimal @default(0.00)
+  amountPaid   Float  @default(0.00)
+  amountPending Float @default(0.00)
   state        Boolean  @default(true)
   student      Students  @relation(fields: [studentId], references: [id])
   price        Price  @relation(fields: [priceId], references: [id])
