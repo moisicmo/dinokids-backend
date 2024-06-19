@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createMonthlyFeeCtrl, updateMonthlyFeeCtrl, findOneMonthlyFeeCtrl,deleteMonthlyFeeCtrl } from './controller';
+import { createMonthlyFeeCtrl, updateMonthlyFeeCtrl, findOneMonthlyFeeCtrl,deleteMonthlyFeeCtrl, findMonthlyFeesCtrl } from './controller';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 
 export class MonthlyFeeRoutes {
@@ -8,7 +8,8 @@ export class MonthlyFeeRoutes {
     const router = Router();
 
     // rutas
-   // router.get( '/', [ AuthMiddleware.validateJWT ],findPricesCtrl );
+   // 
+    router.get( '/', [ AuthMiddleware.validateJWT ],findMonthlyFeesCtrl );
     router.get( '/:id', [ AuthMiddleware.validateJWT ],findOneMonthlyFeeCtrl );
     router.post( '/',[ AuthMiddleware.validateJWT ],createMonthlyFeeCtrl );
     router.put( '/:id',[AuthMiddleware.validateJWT], updateMonthlyFeeCtrl );

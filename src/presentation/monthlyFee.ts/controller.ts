@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import { CustomError, PaginationDto, StaffDto } from '../../domain';
-import {createMonthlyFee, getOneMonthlyFee, updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice}  from '../services';
+import {createMonthlyFee, getOneMonthlyFee, updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee}  from '../services';
 import { TMonthlyfeeInput, TMonthlyfeeOutput } from '../../schemas/monthlyFee.schema';
 import { StudentService } from '../services';
 import { TPriceOutput } from '../../schemas/price';
@@ -44,18 +44,18 @@ export async function createMonthlyFeeCtrl(
 	}
 }
 
-/* export const findMonthlyFeesCtrl = async (req: Request, res: Response) => {
+ export const findMonthlyFeesCtrl = async (req: Request, res: Response) => {
   const { page = 1, limit = 10 } = req.query;
   const [error, paginationDto] = PaginationDto.create(+page, +limit);
   if (error) return res.status(400).json({ error });
 
   try {
-    const  MonthlyFees = await getMonthlyFees(paginationDto!)
+    const  MonthlyFees = await getMonthlyFee(paginationDto!)
     return res.status(201).json(MonthlyFees)
   } catch (error) {
     handleError(error, res)
   }
-} */
+} 
 
 export const findOneMonthlyFeeCtrl = async (req: Request, res: Response) => {
 

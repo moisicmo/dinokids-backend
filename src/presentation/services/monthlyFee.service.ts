@@ -34,6 +34,44 @@ export async function getOneMonthlyFee(id:number) {
   }
 }
 
+export async function getMonthlyFee(paginationDto: PaginationDto) {
+  const { page, limit } = paginationDto;
+  try {
+
+    const [total, monthlyFees] = await Promise.all([
+      prisma.monthlyFee.count({ where: { state: false } }),
+      prisma.monthlyFee.findMany({
+        where: {
+          state: false,
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          student: {
+            include: {
+              user: true,
+            },
+          },
+          price:true,
+        }
+      }),
+    ]);
+
+    return CustomSuccessful.response({
+      result: {
+      page: page,
+      limit: limit,
+      total: total,
+      next: `/api/monthlyfee?page=${(page + 1)}&limit=${limit}`,
+      prev: (page - 1 > 0) ? `/api/monthlyfee?page=${(page - 1)}&limit=${limit}` : null,
+      monthlyFees
+    }});
+
+  } catch (error) {
+    throw CustomError.internalServer('Internal Server Error');
+  }
+} 
+
 /* export async function getPricesByIdClasses(id:number, paginationDto: PaginationDto) {
   const { page, limit } = paginationDto;
   try {
@@ -65,38 +103,7 @@ export async function getOneMonthlyFee(id:number) {
   }
 } */
 
-/* export async function getPrices(paginationDto: PaginationDto) {
-  const { page, limit } = paginationDto;
-  try {
-
-    const [total, prices] = await Promise.all([
-      prisma.price.count({ where: { state: true } }),
-      prisma.price.findMany({
-        where: {
-          state: true,
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-        include: {
-          classes: true,
-        }
-      }),
-    ]);
-
-    return CustomSuccessful.response({
-      result: {
-      page: page,
-      limit: limit,
-      total: total,
-      next: `/api/price?page=${(page + 1)}&limit=${limit}`,
-      prev: (page - 1 > 0) ? `/api/price?page=${(page - 1)}&limit=${limit}` : null,
-      prices
-    }});
-
-  } catch (error) {
-    throw CustomError.internalServer('Internal Server Error');
-  }
-} */
+/* */
 
 export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
 	try {
