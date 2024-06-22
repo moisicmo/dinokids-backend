@@ -124,6 +124,7 @@ model Inscriptions {
   staffId             Int                 @db.Integer
   subjectId           Int                 @db.Integer
   branchId            Int                 @db.Integer
+  priceId             Int                 @db.Integer
   total               Int                 @db.Integer
   url                 String?             @db.VarChar(255)
   state               Boolean             @default(true)
@@ -133,6 +134,9 @@ model Inscriptions {
   staff               Staffs              @relation(fields: [staffId], references: [id])
   subject             Subjects            @relation(fields: [subjectId], references: [id])
   branch              Branches            @relation(fields: [branchId], references: [id])
+  price               Price               @relation(fields: [priceId], references: [id])
+  
+  monthlyFee          MonthlyFee[] 
 }
 
 model Subjects {
@@ -195,7 +199,7 @@ model Classes {
   teacher             Teachers            @relation(fields: [teacherId],references: [id])
   module              Modules             @relation(fields: [moduleId],references: [id])
   students            Students[]
-  price              Price[]
+  price               Price[]
 
 }
 
@@ -209,21 +213,22 @@ model Price{
   updatedAt           DateTime            @updatedAt
   classes             Classes             @relation(fields: [classesId],references: [id])
 
-  monthlyFeeds        MonthlyFee[]
+  inscriptions        Inscriptions[]
 }
 
 model MonthlyFee {
   id           Int      @id @default(autoincrement())
-  priceId      Int      @db.Integer
   startDate    DateTime @db.Date
   endDate      DateTime @db.Date
+  totalInscription Float @default(0.00)
   totalAmount  Float @default(0.00)
   studentId    Int
   amountPaid   Float  @default(0.00)
+  inscriptionId Int
   amountPending Float @default(0.00)
   state        Boolean  @default(true)
   student      Students  @relation(fields: [studentId], references: [id])
-  price        Price  @relation(fields: [priceId], references: [id])
+  inscriptions Inscriptions @relation(fields: [inscriptionId], references: [id])
 
   payments     MonthlyFeePayment[]
   invoices     Invoice[]
@@ -232,22 +237,15 @@ model MonthlyFee {
 model MonthlyFeePayment {
   id              Int      @id @default(autoincrement())
   paymentDate     DateTime
-  amount          Decimal
-  commitmentDate  DateTime?
-  monthlyFeeID    Int
-  monthlyFee      MonthlyFee @relation(fields: [monthlyFeeID], references: [id])
-
-  paimentDetails PaymentDetail[]
-}
-
-model PaymentDetail {
-  id                Int     @id @default(autoincrement())
-  paymentID         Int
+  amount          Float @default(0.00)
+  commitmentDate  DateTime?   @default(now())
   transactionNumber String?
-  payMethod         String?
-  payment          MonthlyFeePayment @relation(fields: [paymentID], references: [id])
-  
+  isInscription Boolean @default(false)
+  payMethod         PayMethod @default(CASH)
+  monthlyFeeId    Int
+  monthlyFee      MonthlyFee @relation(fields: [monthlyFeeId], references: [id])
 }
+
 
 model Invoice {
   id                 Int      @id @default(autoincrement())
@@ -262,6 +260,15 @@ model Invoice {
   buyerName          String
   studentID          Int
   student            Students  @relation(fields: [studentID], references: [id])
-  monthlyFeeID       Int?
-  monthlyFee         MonthlyFee? @relation(fields: [monthlyFeeID], references: [id])
+  monthlyFeeId       Int?
+  monthlyFee         MonthlyFee? @relation(fields: [monthlyFeeId], references: [id])
+}
+
+
+// ENUMUS SECTIONS
+
+enum PayMethod {
+  CASH
+  BANK
+  QR
 }

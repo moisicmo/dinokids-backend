@@ -6,8 +6,8 @@ const prisma = new PrismaClient();
 
 export async function createMonthlyFee(input: TMonthlyfeeInput) {
 	try {
-		const res = await prisma.monthlyFee.create({data:{
-      priceId: input.priceId,
+		const res = await prisma.monthlyFee.createManyAndReturn({data:{
+      inscriptionId: input.inscriptionId,
       startDate: new Date(input.startDate),
       endDate: new Date(input.endDate),
       totalAmount: input.totalAmount,
@@ -16,9 +16,10 @@ export async function createMonthlyFee(input: TMonthlyfeeInput) {
       amountPaid: input.amountPaid,
       state: input.state,
     }});
+    console.log("create monthlyFee:", res)
     return res;
 	} catch (error) {
-		console.log(error)
+		console.log("error monthlyFee create:",error)
 		return error
 	}
 }
@@ -52,7 +53,7 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
               user: true,
             },
           },
-          price:true,
+          inscriptions:true,
         }
       }),
     ]);
@@ -108,7 +109,7 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
 export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
 	try {
 		const res = await prisma.monthlyFee.update({where:{id},data:{
-      priceId: input.priceId,
+      inscriptionId: input.inscriptionId,
       startDate: new Date(input.startDate),
       endDate: new Date(input.endDate),
       totalAmount: input.totalAmount,

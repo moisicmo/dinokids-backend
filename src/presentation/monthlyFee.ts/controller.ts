@@ -1,9 +1,10 @@
 import { Response, Request } from 'express';
 import { CustomError, PaginationDto, StaffDto } from '../../domain';
-import {createMonthlyFee, getOneMonthlyFee, updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee}  from '../services';
+import {createMonthlyFee, getOneMonthlyFee, updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee, createMonthlyFeePayment}  from '../services';
 import { TMonthlyfeeInput, TMonthlyfeeOutput } from '../../schemas/monthlyFee.schema';
-import { StudentService } from '../services';
+import { StudentService, InscriptionService } from '../services';
 import { TPriceOutput } from '../../schemas/price';
+import { TInscriptionPaymentInput } from '../../schemas/inscription.schema';
 
 const handleError = (error: unknown, res: Response) => {
   if (error instanceof CustomError) {
@@ -13,6 +14,58 @@ const handleError = (error: unknown, res: Response) => {
   return res.status(500).json({ error: 'Internal server error' });
 };
 
+// create inscription
+export async function createInscriptionFeeCtrl(
+	req: Request<{}, {}, TInscriptionPaymentInput>,
+	res: Response
+) {
+  const body = req.body;
+  console.log(req.body);
+  
+  let insciptionService = new InscriptionService();
+	try {
+     //find inscription by Id
+      let data = await insciptionService.getInscriptionsById(body.inscriptionId) as any;
+      // control inscription id
+      if (!data) throw CustomError.badRequest('El id de la inscripción no existe');
+      const dataPrice:TPriceOutput = data.price;
+      if (!dataPrice) throw CustomError.badRequest('El id del precio no existe');
+      //control pay month
+      let totalAmount = dataPrice.month;
+      let totalInscription = body.amount;
+      let amountPending = dataPrice.month;
+      if (totalInscription !== dataPrice.inscription) throw CustomError.badRequest(`revise el pago realizado de la inscripción, la institucion no puede salir deviendo o no pude salir perdiendo, total inscripcion a pagar:${dataPrice.inscription}`);
+      let state = amountPending <= 0 ? true : false;
+      let startDate= new Date();
+      let endDate= new Date();
+      let studentId = data.students.id;
+
+		const MonthlyFee = await createMonthlyFee({ 
+      inscriptionId: body.inscriptionId,
+      totalInscription,
+      startDate,
+      endDate,
+      totalAmount,
+      amountPending,
+      studentId,
+      amountPaid:0,
+      state
+    }) as any;
+
+    console.log('monthlyFee create Ctrl:', MonthlyFee)
+
+    const MonthlyFeePayment = await createMonthlyFeePayment({...body, paymentDate: new Date(), commitmentDate: new Date(), transactionNumber: '0001', isInscription: true, 
+      monthlyFeeId: MonthlyFee.id ? MonthlyFee.id : 1
+    })
+    console.log('MonthlyFeePayment create Ctrl:', MonthlyFeePayment)
+
+		 return res.status(201).json({MonthlyFee, MonthlyFeePayment})
+	} catch (error) {
+    handleError(error, res)
+	}
+}
+////////////////
+
 export async function createMonthlyFeeCtrl(
 	req: Request<{}, {}, TMonthlyfeeInput>,
 	res: Response
@@ -21,9 +74,12 @@ export async function createMonthlyFeeCtrl(
   console.log(req.body);
 
   let studentService = new StudentService();
+  let insciptionService = new InscriptionService();
 	try {
-     //find priceId
-      let data = await getOnePrice(body.priceId) as any;
+     //find inscription by Id
+      let data = await insciptionService.getInscriptionsById(body.inscriptionId) as any;
+      // control inscription id
+      if (!data) throw CustomError.badRequest('El id de la inscripción no existe');
       const dataPrice:TPriceOutput = data.price;
       if (!dataPrice) throw CustomError.badRequest('El id del precio no existe');
       //control pay month
@@ -31,11 +87,12 @@ export async function createMonthlyFeeCtrl(
       let amountPending = dataPrice.month - body.amountPaid;
       if (amountPending < 0 ) throw CustomError.badRequest(`revise el pago realizado, la institucion no puede salir deviendo, total a pargar de la clase:${dataPrice.month}`);
       let state = amountPending <= 0 ? true : false;
+      
     // find student
 
-    const student = await studentService.getStudent(body.studentId);
+/*     const student = await studentService.getStudent(body.studentId);
     console.log("student:",student);
-    if (!student) throw CustomError.badRequest('El id del estudiante no existe'); 
+    if (!student) throw CustomError.badRequest('El id del estudiante no existe'); */ 
 
 		const MonthlyFee = await createMonthlyFee({...body, totalAmount, amountPending, state})
 		 return res.status(201).json(MonthlyFee)
