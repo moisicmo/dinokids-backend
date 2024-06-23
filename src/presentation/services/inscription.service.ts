@@ -239,7 +239,6 @@ export class InscriptionService {
           price:true,
         },
       });
-      console.log(inscription);
       const { ...inscriptionEntity } = InscriptionEntity.fromObject(
         inscription!
       );

@@ -20,7 +20,6 @@ export async function createInscriptionFeeCtrl(
 	res: Response
 ) {
   const body = req.body;
-  console.log(req.body);
   
   let insciptionService = new InscriptionService();
 	try {
@@ -31,18 +30,17 @@ export async function createInscriptionFeeCtrl(
       const dataPrice:TPriceOutput = data.price;
       if (!dataPrice) throw CustomError.badRequest('El id del precio no existe');
       //control pay month
-      let totalAmount = dataPrice.month;
-      let totalInscription = body.amount;
-      let amountPending = dataPrice.month;
-      if (totalInscription !== dataPrice.inscription) throw CustomError.badRequest(`revise el pago realizado de la inscripción, la institucion no puede salir deviendo o no pude salir perdiendo, total inscripcion a pagar:${dataPrice.inscription}`);
+      let totalAmount = 0;
+      let amountPending = dataPrice.month-totalAmount;
+      if (body.amount !== dataPrice.inscription) throw CustomError.badRequest(`revise el pago realizado de la inscripción, la institucion no puede salir deviendo o no pude salir perdiendo, total inscripcion a pagar:${dataPrice.inscription}`);
       let state = amountPending <= 0 ? true : false;
       let startDate= new Date();
       let endDate= new Date();
-      let studentId = data.students.id;
+      let studentId = data.student.id;
 
 		const MonthlyFee = await createMonthlyFee({ 
       inscriptionId: body.inscriptionId,
-      totalInscription,
+      totalInscription: body.amount,
       startDate,
       endDate,
       totalAmount,
@@ -52,12 +50,14 @@ export async function createInscriptionFeeCtrl(
       state
     }) as any;
 
-    console.log('monthlyFee create Ctrl:', MonthlyFee)
 
-    const MonthlyFeePayment = await createMonthlyFeePayment({...body, paymentDate: new Date(), commitmentDate: new Date(), transactionNumber: '0001', isInscription: true, 
-      monthlyFeeId: MonthlyFee.id ? MonthlyFee.id : 1
+    const MonthlyFeePayment = await createMonthlyFeePayment({
+      ...body, 
+      paymentDate: new Date(), 
+      commitmentDate: new Date(), 
+      isInscription: true, 
+      monthlyFeeId: MonthlyFee.id
     })
-    console.log('MonthlyFeePayment create Ctrl:', MonthlyFeePayment)
 
 		 return res.status(201).json({MonthlyFee, MonthlyFeePayment})
 	} catch (error) {

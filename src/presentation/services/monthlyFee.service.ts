@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function createMonthlyFee(input: TMonthlyfeeInput) {
 	try {
-		const res = await prisma.monthlyFee.createManyAndReturn({data:{
+		const res = await prisma.monthlyFee.create({data:{
       inscriptionId: input.inscriptionId,
       startDate: new Date(input.startDate),
       endDate: new Date(input.endDate),
@@ -15,6 +15,7 @@ export async function createMonthlyFee(input: TMonthlyfeeInput) {
       studentId: input.studentId,
       amountPaid: input.amountPaid,
       state: input.state,
+      totalInscription: input.totalInscription,
     }});
     console.log("create monthlyFee:", res)
     return res;
