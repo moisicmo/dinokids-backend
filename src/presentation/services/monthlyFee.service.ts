@@ -43,9 +43,12 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
     const [total, monthlyFees] = await Promise.all([
       prisma.monthlyFee.count({ where: { state: false } }),
       prisma.monthlyFee.findMany({
-        where: {
-          state: false,
-        },
+        orderBy: [
+          {
+            id: 'desc',
+          },
+          
+        ],
         skip: (page - 1) * limit,
         take: limit,
         include: {

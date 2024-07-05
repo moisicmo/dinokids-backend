@@ -43,11 +43,13 @@ export class InscriptionService {
               }
             },
             branch: true,
+            price:true,
           },
         }),
       ]);
+     // console.log("inscriptions many:",inscriptions)
 
-      return CustomSuccessful.response({
+      const resData = CustomSuccessful.response({
         result: {
           page: page,
           limit: limit,
@@ -64,6 +66,8 @@ export class InscriptionService {
           }),
         },
       });
+      console.log("service:",resData)
+      return resData
     } catch (error) {
       throw CustomError.internalServer('Internal Server Error');
     }

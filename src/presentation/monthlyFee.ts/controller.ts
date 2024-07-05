@@ -20,11 +20,11 @@ export async function createInscriptionFeeCtrl(
 	res: Response
 ) {
   const body = req.body;
-  
+  console.log("body inscripcion:", body)
   let insciptionService = new InscriptionService();
 	try {
      //find inscription by Id
-      let data = await insciptionService.getInscriptionsById(body.inscriptionId) as any;
+      let data = await insciptionService.getInscriptionsById(body.inscriptionsId) as any;
       // control inscription id
       if (!data) throw CustomError.badRequest('El id de la inscripción no existe');
       const dataPrice:TPriceOutput = data.price;
@@ -39,7 +39,7 @@ export async function createInscriptionFeeCtrl(
       let studentId = data.student.id;
 
 		const MonthlyFee = await createMonthlyFee({ 
-      inscriptionId: body.inscriptionId,
+      inscriptionId: body.inscriptionsId,// TOMAR EN CUENTA inscriptions terminacion con s
       totalInscription: body.amount,
       startDate,
       endDate,

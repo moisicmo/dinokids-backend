@@ -7,7 +7,7 @@ enum MethodPayEnum {
 }
 
 export const inscriptionPaymentSchema = v.object({
-  inscriptionId : v.number(),
+  inscriptionsId : v.number(),
   amount: v.number(),
   transactionNumber: v.string(),
   payMethod:        v.enum_(MethodPayEnum)
