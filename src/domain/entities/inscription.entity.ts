@@ -1,4 +1,4 @@
-import { BranchEntity, StaffEntity, StudentEntity, SubjectEntity } from '..';
+import { BranchEntity, StaffEntity, StudentEntity, SubjectEntity, PriceEntity } from '..';
 
 export class InscriptionEntity {
   constructor(
@@ -10,6 +10,7 @@ export class InscriptionEntity {
     public staff?: StaffEntity,
     public subject?: SubjectEntity,
     public branch?: BranchEntity,
+    public price?: PriceEntity
   ) {}
 
   static fromObject(object: { [key: string]: any }) {
@@ -22,11 +23,14 @@ export class InscriptionEntity {
       staff,
       subject,
       branch,
+      price
     } = object;
     const studentEntity = StudentEntity.fromObject(student);
     const staffEntity = StaffEntity.fromObject(staff);
     const subjectEntity = SubjectEntity.fromObject(subject);
     const branchEntity = BranchEntity.fromObject(branch);
+    const priceEntity = PriceEntity.fromObject(price);
+
 
     return new InscriptionEntity(
       id,
@@ -37,6 +41,7 @@ export class InscriptionEntity {
       staffEntity,
       subjectEntity,
       branchEntity,
+      priceEntity,
     );
   }
 }

@@ -8,6 +8,7 @@ import {
   CustomSuccessful,
 } from '../../domain';
 import { generatePdf } from '../../config';
+import { includes } from 'valibot';
 
 const prisma = new PrismaClient();
 
@@ -42,11 +43,13 @@ export class InscriptionService {
               }
             },
             branch: true,
+            price:true,
           },
         }),
       ]);
+     // console.log("inscriptions many:",inscriptions)
 
-      return CustomSuccessful.response({
+      const resData = CustomSuccessful.response({
         result: {
           page: page,
           limit: limit,
@@ -63,11 +66,14 @@ export class InscriptionService {
           }),
         },
       });
+      console.log("service:",resData)
+      return resData
     } catch (error) {
       throw CustomError.internalServer('Internal Server Error');
     }
   }
 
+  
   async createInscription(inscriptionDto: InscriptionDto, user: UserEntity) {
     try {
       const { ...createInscriptionDto } = inscriptionDto;
@@ -76,6 +82,7 @@ export class InscriptionService {
           studentId:createInscriptionDto.studentId,
           branchId: createInscriptionDto.branchId,
           subjectId: createInscriptionDto.subjectId,
+          priceId: createInscriptionDto.priceId,
         },
       });
       if (inscriptionExists)
@@ -104,6 +111,7 @@ export class InscriptionService {
             }
           },
           branch: true,
+          price: true,
         },
       });
       const { ...inscriptionEntity } = await InscriptionEntity.fromObject(inscription);
@@ -210,4 +218,79 @@ export class InscriptionService {
       throw CustomError.internalServer(`${error}`);
     }
   }
+  /// get Inscription By Id
+  async getInscriptionsById (inscriptionId: number) {
+    try {
+      const inscription = await prisma.inscriptions.findFirst({
+        where: { id: inscriptionId },
+        include: {
+          student: {
+            include: {
+              user: true,
+            },
+          },
+          staff: {
+            include: {
+              user: true,
+            },
+          },
+          subject: {
+            include:{
+              category:true,
+            }
+          },
+          branch: true,
+          price:true,
+        },
+      });
+      const { ...inscriptionEntity } = InscriptionEntity.fromObject(
+        inscription!
+      );
+      return CustomSuccessful.response({ result: inscriptionEntity });
+    } catch (error) {
+      throw CustomError.internalServer('Internal Server Error');
+    }
+  }
+  // get inscriptions By Id Students
+  async getInscriptionsByIdStundent (paginationDto: PaginationDto, idStundet: number) {
+    const { page, limit } = paginationDto;
+    try {
+      const inscription = await prisma.inscriptions.findFirst({
+        where: { studentId: idStundet },
+        include: {
+          student: {
+            include: {
+              user: true,
+            },
+          },
+          staff: {
+            include: {
+              user: true,
+            },
+          },
+          subject: {
+            include:{
+              category:true,
+            }
+          },
+          branch: true,
+          price:{
+            include:{
+              classes:true,
+            }
+          },
+        },
+      });
+      const { ...inscriptionEntity } = InscriptionEntity.fromObject(
+        inscription!
+      );
+      return CustomSuccessful.response({ result: inscriptionEntity });
+    } catch (error) {
+      throw CustomError.internalServer('Internal Server Error');
+    }
+  }
+
+  
 }
+
+

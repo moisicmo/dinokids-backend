@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 export async function createMonthlyFee(input: TMonthlyfeeInput) {
 	try {
 		const res = await prisma.monthlyFee.create({data:{
-      priceId: input.priceId,
+      inscriptionId: input.inscriptionId,
       startDate: new Date(input.startDate),
       endDate: new Date(input.endDate),
       totalAmount: input.totalAmount,
@@ -15,10 +15,21 @@ export async function createMonthlyFee(input: TMonthlyfeeInput) {
       studentId: input.studentId,
       amountPaid: input.amountPaid,
       state: input.state,
-    }});
+      totalInscription: input.totalInscription,
+    },
+    include: {
+      student: {
+        include:{
+          user:true
+        }
+      },
+      inscriptions: true,
+    }
+  });
+    return CustomSuccessful.response({ result: {...res} });
     return res;
 	} catch (error) {
-		console.log(error)
+		console.log("error monthlyFee create:",error)
 		return error
 	}
 }
@@ -33,6 +44,16 @@ export async function getOneMonthlyFee(id:number) {
     throw CustomError.internalServer('Internal Server Error');
   }
 }
+export async function getOneMonthlyFeeByIdInscriptions(id:number) {
+  try {
+    const monthlyFee = await prisma.monthlyFee.findFirst({where: {inscriptionId:id, state:false}})
+    console.log("monthlyFee:",monthlyFee)
+    return monthlyFee;
+  } catch (error:any) {
+    console.log(error.message)
+    throw CustomError.internalServer('Internal Server Error');
+  }
+}
 
 export async function getMonthlyFee(paginationDto: PaginationDto) {
   const { page, limit } = paginationDto;
@@ -41,9 +62,12 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
     const [total, monthlyFees] = await Promise.all([
       prisma.monthlyFee.count({ where: { state: false } }),
       prisma.monthlyFee.findMany({
-        where: {
-          state: false,
-        },
+        orderBy: [
+          {
+            id: 'desc',
+          },
+          
+        ],
         skip: (page - 1) * limit,
         take: limit,
         include: {
@@ -52,7 +76,7 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
               user: true,
             },
           },
-          price:true,
+          inscriptions:true,
         }
       }),
     ]);
@@ -108,7 +132,7 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
 export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
 	try {
 		const res = await prisma.monthlyFee.update({where:{id},data:{
-      priceId: input.priceId,
+      inscriptionId: input.inscriptionId,
       startDate: new Date(input.startDate),
       endDate: new Date(input.endDate),
       totalAmount: input.totalAmount,
@@ -116,6 +140,14 @@ export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
       studentId: input.studentId,
       amountPaid: input.amountPaid,
       state: input.state,
+    },
+    include: {
+      student: {
+        include:{
+          user:true
+        }
+      },
+      inscriptions: true,
     }});
     return CustomSuccessful.response({ result: res });
 	} catch (error) {

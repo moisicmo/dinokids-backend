@@ -12,6 +12,7 @@ export * from './entities/subject.entity';
 export * from './entities/category.entity';
 export * from './entities/inscription.entity';
 export * from './entities/room.entity';
+export * from './entities/price.entity';
 
 export * from './dtos/branch/branch.dto';
 export * from './dtos/auth/register-user.dto';
