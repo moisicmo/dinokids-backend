@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import { CustomError, PaginationDto, StaffDto } from '../../domain';
-import {createMonthlyFee, getOneMonthlyFee, updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee, createMonthlyFeePayment}  from '../services';
+import {createMonthlyFee, getOneMonthlyFee, getOneMonthlyFeeByIdInscriptions,updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee, createMonthlyFeePayment}  from '../services';
 import { TMonthlyfeeAndMethodPayInput, TMonthlyfeeInput, TMonthlyfeeOutput } from '../../schemas/monthlyFee.schema';
 import { StudentService, InscriptionService } from '../services';
 import { TPriceOutput } from '../../schemas/price';
@@ -50,7 +50,7 @@ export async function createInscriptionFeeCtrl(
       state
     }) as any;
 
-
+console.log("createMonthlyFee:", MonthlyFee);
     const MonthlyFeePayment = await createMonthlyFeePayment({
       ...body, 
       paymentDate: new Date(), 
@@ -59,7 +59,7 @@ export async function createInscriptionFeeCtrl(
       monthlyFeeId: MonthlyFee.id
     })
 
-		 return res.status(201).json({MonthlyFee, MonthlyFeePayment})
+		 return res.status(201).json(MonthlyFee)
 	} catch (error) {
     handleError(error, res)
 	}
@@ -77,32 +77,89 @@ export async function createMonthlyFeeCtrl(
   let insciptionService = new InscriptionService();
 	try {
      //find inscription by Id
-      let data = await insciptionService.getInscriptionsById(body.inscriptionId) as any;
-      // control inscription id
-      if (!data) throw CustomError.badRequest('El id de la inscripción no existe');
-      const dataPrice:TPriceOutput = data.price;
-      if (!dataPrice) throw CustomError.badRequest('El id del precio no existe');
-      //control pay month
-      let totalAmount = dataPrice.month;
-      let amountPending = dataPrice.month - body.amountPaid;
-      if (amountPending < 0 ) throw CustomError.badRequest(`revise el pago realizado, la institucion no puede salir deviendo, total a pargar de la clase:${dataPrice.month}`);
-      let state = amountPending <= 0 ? true : false;
-      
-     
+      let data = await getOneMonthlyFeeByIdInscriptions(body.inscriptionId);
 
-		const MonthlyFee = await createMonthlyFee({...body, totalAmount, amountPending, state}) as any;
+      // control inscription id
+      if (data) {
+        // control pay state
+
+     if(data.state === true){
+      return res.status(201).json({message: 'No hay deuda en el pago de esta mensualidad'})
+     }
+     
+      //control pay month
+      let amountPaid = await data.amountPaid + body.amountPaid;
+      console.log('amountPaid:', amountPaid);
+      let amountPending = await data.totalAmount - amountPaid;
+      console.log('amountPending:', amountPending);
+
+      if (amountPending < 0 ) throw CustomError.badRequest(`revise el pago realizado, la institucion no puede salir deviendo, pago pendiente la clase:${data.amountPending}`);
+
+      body.amountPaid = amountPaid;
+      body.amountPending = amountPending;
+      body.state = amountPending <= 0 ? true : false;
+
+    const  MonthlyFee = await updateMonthlyFee(data.id,{...body} )
 
     const MonthlyFeePayment = await createMonthlyFeePayment({
       amount: body.amountPaid,
       commitmentDate: body.commitmentDate,
       paymentDate: new Date(), 
       isInscription: body.isInscription, 
-      monthlyFeeId: MonthlyFee.id,
+      monthlyFeeId: data.id,
       payMethod: body.payMethod,
       transactionNumber: body.transactionNumber
     })
 
-		 return res.status(201).json({MonthlyFee, MonthlyFeePayment})
+		 return res.status(201).json(MonthlyFee)
+       
+      }else{
+        const body = req.body;
+  console.log("body inscripcion:", body)
+  let insciptionService = new InscriptionService();
+  let dataIns = await insciptionService.getInscriptionsById(body.inscriptionId) as any;
+      // control inscription id
+      if (!dataIns) throw CustomError.badRequest('El id de la inscripción no existe');
+      const dataInsPrice:TPriceOutput = dataIns.price;
+      if (!dataInsPrice) throw CustomError.badRequest('El id del precio no existe');
+      //control pay month
+      let totalInscription = dataInsPrice.inscription;
+
+      let totalAmount = dataInsPrice.month;
+      let amountPending = dataInsPrice.month-body.amountPaid;
+      if (body.amountPaid > totalAmount) throw CustomError.badRequest(`revise el pago realizado de la inscripción, la institucion no puede salir deviendo, total mes a pagar:${totalAmount}`);
+
+      let state = amountPending <= 0 ? true : false;
+      let startDate= new Date();
+      let endDate= new Date();
+      let studentId = dataIns.student.id;
+
+		const MonthlyFee = await createMonthlyFee({ 
+      inscriptionId: body.inscriptionId,// TOMAR EN CUENTA inscriptions terminacion con s
+      totalInscription: totalInscription,
+      startDate,
+      endDate,
+      totalAmount,
+      amountPending,
+      studentId,
+      amountPaid:0,
+      state
+    }) as any;
+
+console.log("createMonthlyFee:", MonthlyFee);
+    const MonthlyFeePayment = await createMonthlyFeePayment({
+      transactionNumber: body.transactionNumber,
+      payMethod: body.payMethod,
+      amount:body.amountPaid,
+      paymentDate: new Date(), 
+      commitmentDate: new Date(), 
+      isInscription: true, 
+      monthlyFeeId: MonthlyFee.id
+    })
+
+		 return res.status(201).json(MonthlyFee)
+      }
+
 	} catch (error) {
     handleError(error, res)
 	}

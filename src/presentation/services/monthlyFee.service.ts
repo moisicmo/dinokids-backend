@@ -16,8 +16,17 @@ export async function createMonthlyFee(input: TMonthlyfeeInput) {
       amountPaid: input.amountPaid,
       state: input.state,
       totalInscription: input.totalInscription,
-    }});
-    console.log("create monthlyFee:", res)
+    },
+    include: {
+      student: {
+        include:{
+          user:true
+        }
+      },
+      inscriptions: true,
+    }
+  });
+    return CustomSuccessful.response({ result: {...res} });
     return res;
 	} catch (error) {
 		console.log("error monthlyFee create:",error)
@@ -30,6 +39,16 @@ export async function getOneMonthlyFee(id:number) {
     const monthlyFee = await prisma.monthlyFee.findFirst({where: {id}})
     console.log("monthlyFee:",monthlyFee)
     return CustomSuccessful.response({ result: {monthlyFee} });
+  } catch (error:any) {
+    console.log(error.message)
+    throw CustomError.internalServer('Internal Server Error');
+  }
+}
+export async function getOneMonthlyFeeByIdInscriptions(id:number) {
+  try {
+    const monthlyFee = await prisma.monthlyFee.findFirst({where: {inscriptionId:id, state:false}})
+    console.log("monthlyFee:",monthlyFee)
+    return monthlyFee;
   } catch (error:any) {
     console.log(error.message)
     throw CustomError.internalServer('Internal Server Error');
@@ -121,6 +140,14 @@ export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
       studentId: input.studentId,
       amountPaid: input.amountPaid,
       state: input.state,
+    },
+    include: {
+      student: {
+        include:{
+          user:true
+        }
+      },
+      inscriptions: true,
     }});
     return CustomSuccessful.response({ result: res });
 	} catch (error) {
