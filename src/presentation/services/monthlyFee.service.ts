@@ -26,7 +26,6 @@ export async function createMonthlyFee(input: TMonthlyfeeInput) {
       inscriptions: true,
     }
   });
-    return CustomSuccessful.response({ result: {...res} });
     return res;
 	} catch (error) {
 		console.log("error monthlyFee create:",error)
@@ -37,7 +36,7 @@ export async function createMonthlyFee(input: TMonthlyfeeInput) {
 export async function getOneMonthlyFee(id:number) {
   try {
     const monthlyFee = await prisma.monthlyFee.findFirst({where: {id}})
-    console.log("monthlyFee:",monthlyFee)
+    //console.log("monthlyFee:",monthlyFee)
     return CustomSuccessful.response({ result: {monthlyFee} });
   } catch (error:any) {
     console.log(error.message)
@@ -47,7 +46,7 @@ export async function getOneMonthlyFee(id:number) {
 export async function getOneMonthlyFeeByIdInscriptions(id:number) {
   try {
     const monthlyFee = await prisma.monthlyFee.findFirst({where: {inscriptionId:id, state:false}})
-    console.log("monthlyFee:",monthlyFee)
+    //console.log("monthlyFee:",monthlyFee)
     return monthlyFee;
   } catch (error:any) {
     console.log(error.message)

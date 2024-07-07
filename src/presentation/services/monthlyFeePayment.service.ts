@@ -25,7 +25,7 @@ export async function createMonthlyFeePayment(input: TMonthlyFeePaymentInput) {
 export async function getOneMonthlyFeePayment(id:number) {
   try {
     const monthlyFeePayment = await prisma.monthlyFeePayment.findFirst({where: {monthlyFeeId: id}})
-    console.log("monthlyFeePayment services:",monthlyFeePayment)
+    //console.log("monthlyFeePayment services:",monthlyFeePayment)
     return CustomSuccessful.response({ result: {monthlyFeePayment} });
   } catch (error:any) {
     console.log(error.message)

@@ -1,5 +1,5 @@
 import { Response, Request } from 'express';
-import { CustomError, PaginationDto, StaffDto } from '../../domain';
+import { CustomError, PaginationDto, StaffDto,CustomSuccessful } from '../../domain';
 import {createMonthlyFee, getOneMonthlyFee, getOneMonthlyFeeByIdInscriptions,updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee, createMonthlyFeePayment}  from '../services';
 import { TMonthlyfeeAndMethodPayInput, TMonthlyfeeInput, TMonthlyfeeOutput } from '../../schemas/monthlyFee.schema';
 import { StudentService, InscriptionService } from '../services';
@@ -72,9 +72,6 @@ export async function createMonthlyFeeCtrl(
 ) {
   const body = req.body;
   console.log(req.body);
-
-  let studentService = new StudentService();
-  let insciptionService = new InscriptionService();
 	try {
      //find inscription by Id
       let data = await getOneMonthlyFeeByIdInscriptions(body.inscriptionId);
@@ -110,8 +107,8 @@ export async function createMonthlyFeeCtrl(
       payMethod: body.payMethod,
       transactionNumber: body.transactionNumber
     })
-
-		 return res.status(201).json(MonthlyFee)
+    const dataSend =  CustomSuccessful.response({result: {...MonthlyFee, message:'update'} });
+    return res.status(201).json(dataSend)
        
       }else{
         const body = req.body;
@@ -142,11 +139,10 @@ export async function createMonthlyFeeCtrl(
       totalAmount,
       amountPending,
       studentId,
-      amountPaid:0,
+      amountPaid: body.amountPaid,
       state
     }) as any;
 
-console.log("createMonthlyFee:", MonthlyFee);
     const MonthlyFeePayment = await createMonthlyFeePayment({
       transactionNumber: body.transactionNumber,
       payMethod: body.payMethod,
@@ -156,8 +152,9 @@ console.log("createMonthlyFee:", MonthlyFee);
       isInscription: true, 
       monthlyFeeId: MonthlyFee.id
     })
+     const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,message:'create'} });
+     return res.status(201).json(dataSend)
 
-		 return res.status(201).json(MonthlyFee)
       }
 
 	} catch (error) {
