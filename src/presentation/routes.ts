@@ -13,6 +13,8 @@ import { InscriptionRoutes } from './inscription/routes';
 import { RoomRoutes } from './room/routes';
 import { PriceRoutes } from './price/routes';
 import { MonthlyFeeRoutes } from './monthlyFee.ts/routes';
+import { ModuleRoutes } from './module/routes';
+import { ClasseRoutes } from './classe/routes';
 export class AppRoutes {
 
 
@@ -29,6 +31,8 @@ export class AppRoutes {
     router.use('/api/student', StudentRoutes.routes);
     router.use('/api/teacher', TeacherRoutes.routes);
     router.use('/api/subject', SubjectRoutes.routes);
+    router.use('/api/classe', ClasseRoutes.routes);
+    router.use('/api/module', ModuleRoutes.routes);
     router.use('/api/category', CategoryRoutes.routes);
     router.use('/api/inscription', InscriptionRoutes.routes);
     router.use('/api/room', RoomRoutes.routes);

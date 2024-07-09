@@ -56,6 +56,7 @@ export class TeacherService {
       if (!userExists) {
         const user = await prisma.users.create({
           data: {
+            dni: createTeacherDto.dni,
             name: createTeacherDto.name,
             lastName: createTeacherDto.lastName,
             email: createTeacherDto.email,
@@ -81,7 +82,6 @@ export class TeacherService {
 
       const teacher = await prisma.teachers.create({
         data: {
-          ci:createTeacherDto.ci,
           userId: userId,
         },
         include: {
@@ -99,9 +99,9 @@ export class TeacherService {
     }
   }
 
-  async updateTeacher(updateTeacherDto: TeacherDto, user: UserEntity, staffId: number) {
+  async updateTeacher(updateTeacherDto: TeacherDto, user: UserEntity, teacherId: number) {
     const teacherExists = await prisma.teachers.findFirst({
-      where: { id: staffId },
+      where: { id: teacherId },
       include: {
         user: true,
       }
@@ -119,9 +119,9 @@ export class TeacherService {
       });
 
       const teacher = await prisma.teachers.update({
-        where: { id: staffId },
+        where: { id: teacherId },
         data: {
-          ...updateTeacherDto,
+          // ...updateTeacherDto,
         },
         include: {
           user: true,

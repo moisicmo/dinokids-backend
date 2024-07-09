@@ -31,6 +31,7 @@ model Branches {
 
 model Users {
   id                  Int                 @id @default(autoincrement())
+  dni                 String              @unique
   name                String              @db.VarChar(255)
   lastName            String              @db.VarChar(255)
   email               String              @unique
@@ -109,7 +110,6 @@ model Tutors {
 model Teachers {
   id                  Int                 @id @default(autoincrement())
   userId              Int                 @unique
-  ci                  String              @unique
   state               Boolean             @default(true)
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt

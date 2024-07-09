@@ -3,27 +3,24 @@ import { UserEntity } from "..";
 export class TeacherAuthEntity {
   constructor(
     public id: number,
-    public ci: string,
-  ) {}
+  ) { }
   static fromObject(object: { [key: string]: any }) {
-    const { id, ci } = object;
-    return new TeacherAuthEntity(id, ci);
+    const { id } = object;
+    return new TeacherAuthEntity(id);
   }
 }
 
 export class TeacherEntity extends UserEntity {
-  public readonly ci: string;
 
-  constructor(id: number, ci: string, user: UserEntity) {
-    super(user.id, user.name, user.lastName, user.email);
+  constructor(id: number, user: UserEntity) {
+    super(user.id, user.dni, user.name, user.lastName, user.email);
     this.id = id;
-    this.ci = ci;
   }
   static fromObject(object: { [key: string]: any }) {
-    const { id, ci, user } = object;
+    const { id, user } = object;
 
     const userEntity = UserEntity.fromObject(user);
 
-    return new TeacherEntity(id, ci, userEntity);
+    return new TeacherEntity(id, userEntity);
   }
 }

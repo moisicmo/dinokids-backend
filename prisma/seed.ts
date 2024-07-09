@@ -8,6 +8,7 @@ async function main() {
 
     const user = await prisma.users.create({
       data: {
+        dni: envs.DNI,
         name: envs.NAME_SEED,
         lastName: envs.LAST_NAME_SEED,
         email: envs.EMAIL_SEED,

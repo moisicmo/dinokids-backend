@@ -58,6 +58,7 @@ export class StaffService {
       if (!userExists) {
         const user = await prisma.users.create({
           data: {
+            dni: createStaffDto.dni,
             name: createStaffDto.name,
             lastName: createStaffDto.lastName,
             email: createStaffDto.email,

@@ -63,6 +63,7 @@ export class StudentService {
       if (!userExists) {
         const user = await prisma.users.create({
           data: {
+            dni: createStudentDto.dni,
             name: createStudentDto.name,
             lastName: createStudentDto.lastName,
             email: createStudentDto.email,
@@ -88,7 +89,7 @@ export class StudentService {
 
       const student = await prisma.students.create({
         data: {
-          code: createStudentDto.code,
+          code: createStudentDto.dni,
           userId: userId,
         },
         include: {
@@ -129,7 +130,8 @@ export class StudentService {
       const student = await prisma.students.update({
         where: { id: studentId },
         data: {
-          ...updateStudentDto,
+          // ...updateStudentDto,
+          code:updateStudentDto.dni,
         },
         include: {
           user: true,

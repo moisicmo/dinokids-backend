@@ -348,6 +348,11 @@
   resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-9.0.8.tgz#7545ba4fc3c003d6c756f651f3bf163d8f0f29ba"
   integrity sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==
 
+"@valibot/valibot@npm:@jsr/valibot__valibot@^0.31.1":
+  version "0.31.1"
+  resolved "https://npm.jsr.io/~/11/@jsr/valibot__valibot/0.31.1.tgz#B37344DDBE58D072629553C9E97F056C06EC7002"
+  integrity sha512-/4g/IeHygqfhlX+1c7t1pVUIUlSGxch9Wu1vb0ajhfA67XOS1imM3tc+/ZFkp0iOOKaNDz2Zh7N1K83Wj7tRXw==
+
 "@xmldom/xmldom@^0.8.2":
   version "0.8.10"
   resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.8.10.tgz#a1337ca426aa61cef9fe15b5b28e340a72f6fa99"
@@ -2120,6 +2125,11 @@ v8-compile-cache-lib@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/v8-compile-cache-lib/-/v8-compile-cache-lib-3.0.1.tgz#6336e8d71965cb3d35a1bbb7868445a7c05264bf"
   integrity sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==
+
+valibot@^0.31.1:
+  version "0.31.1"
+  resolved "https://registry.yarnpkg.com/valibot/-/valibot-0.31.1.tgz#fa1481da7cf28a2fdb15e37b0b292023a30293cb"
+  integrity sha512-2YYIhPrnVSz/gfT2/iXVTrSj92HwchCt9Cga/6hX4B26iCz9zkIsGTS0HjDYTZfTi1Un0X6aRvhBi1cfqs/i0Q==
 
 vary@^1, vary@~1.1.2:
   version "1.1.2"

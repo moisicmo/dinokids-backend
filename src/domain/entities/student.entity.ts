@@ -15,7 +15,7 @@ export class StudentEntity extends UserEntity {
   public readonly code: string;
 
   constructor(id: number, code: string, user: UserEntity) {
-    super(user.id, user.name, user.lastName, user.email);
+    super(user.id, user.dni, user.name, user.lastName, user.email);
     this.id = id;
     this.code = code;
   }

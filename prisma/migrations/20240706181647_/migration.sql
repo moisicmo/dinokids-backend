@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "PayMethod" AS ENUM ('CASH', 'BANK', 'QR');
+
 -- CreateTable
 CREATE TABLE "Branches" (
     "id" SERIAL NOT NULL,
@@ -14,6 +17,7 @@ CREATE TABLE "Branches" (
 -- CreateTable
 CREATE TABLE "Users" (
     "id" SERIAL NOT NULL,
+    "dni" TEXT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "lastName" VARCHAR(255) NOT NULL,
     "email" TEXT NOT NULL,
@@ -92,7 +96,6 @@ CREATE TABLE "Tutors" (
 CREATE TABLE "Teachers" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
-    "ci" TEXT NOT NULL,
     "state" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -107,6 +110,7 @@ CREATE TABLE "Inscriptions" (
     "staffId" INTEGER NOT NULL,
     "subjectId" INTEGER NOT NULL,
     "branchId" INTEGER NOT NULL,
+    "priceId" INTEGER NOT NULL,
     "total" INTEGER NOT NULL,
     "url" VARCHAR(255),
     "state" BOOLEAN NOT NULL DEFAULT true,
@@ -181,6 +185,67 @@ CREATE TABLE "Classes" (
 );
 
 -- CreateTable
+CREATE TABLE "Price" (
+    "id" SERIAL NOT NULL,
+    "classesId" INTEGER NOT NULL,
+    "inscription" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
+    "month" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
+    "state" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Price_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MonthlyFee" (
+    "id" SERIAL NOT NULL,
+    "startDate" DATE NOT NULL,
+    "endDate" DATE NOT NULL,
+    "totalInscription" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
+    "totalAmount" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
+    "studentId" INTEGER NOT NULL,
+    "amountPaid" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
+    "inscriptionId" INTEGER NOT NULL,
+    "amountPending" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
+    "state" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "MonthlyFee_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MonthlyFeePayment" (
+    "id" SERIAL NOT NULL,
+    "paymentDate" TIMESTAMP(3) NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
+    "commitmentDate" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "transactionNumber" TEXT,
+    "isInscription" BOOLEAN NOT NULL DEFAULT false,
+    "payMethod" "PayMethod" NOT NULL DEFAULT 'CASH',
+    "monthlyFeeId" INTEGER NOT NULL,
+
+    CONSTRAINT "MonthlyFeePayment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Invoice" (
+    "id" SERIAL NOT NULL,
+    "invoiceNumber" TEXT NOT NULL,
+    "authorizationNumber" TEXT NOT NULL,
+    "controlCode" TEXT NOT NULL,
+    "issueDate" TIMESTAMP(3) NOT NULL,
+    "dueDate" TIMESTAMP(3),
+    "totalAmount" DECIMAL(65,30) NOT NULL,
+    "issuerNIT" TEXT NOT NULL,
+    "buyerNIT" TEXT NOT NULL,
+    "buyerName" TEXT NOT NULL,
+    "studentID" INTEGER NOT NULL,
+    "monthlyFeeId" INTEGER,
+
+    CONSTRAINT "Invoice_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_BranchesToSubjects" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -223,6 +288,9 @@ CREATE TABLE "_ClassesToStudents" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Users_dni_key" ON "Users"("dni");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Users_email_key" ON "Users"("email");
 
 -- CreateIndex
@@ -242,9 +310,6 @@ CREATE UNIQUE INDEX "Tutors_userId_key" ON "Tutors"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Teachers_userId_key" ON "Teachers"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Teachers_ci_key" ON "Teachers"("ci");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_BranchesToSubjects_AB_unique" ON "_BranchesToSubjects"("A", "B");
@@ -313,6 +378,9 @@ ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_subjectId_fkey" FOREIGN 
 ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_priceId_fkey" FOREIGN KEY ("priceId") REFERENCES "Price"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Subjects" ADD CONSTRAINT "Subjects_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -329,6 +397,24 @@ ALTER TABLE "Classes" ADD CONSTRAINT "Classes_teacherId_fkey" FOREIGN KEY ("teac
 
 -- AddForeignKey
 ALTER TABLE "Classes" ADD CONSTRAINT "Classes_moduleId_fkey" FOREIGN KEY ("moduleId") REFERENCES "Modules"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Price" ADD CONSTRAINT "Price_classesId_fkey" FOREIGN KEY ("classesId") REFERENCES "Classes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MonthlyFee" ADD CONSTRAINT "MonthlyFee_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Students"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MonthlyFee" ADD CONSTRAINT "MonthlyFee_inscriptionId_fkey" FOREIGN KEY ("inscriptionId") REFERENCES "Inscriptions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MonthlyFeePayment" ADD CONSTRAINT "MonthlyFeePayment_monthlyFeeId_fkey" FOREIGN KEY ("monthlyFeeId") REFERENCES "MonthlyFee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_studentID_fkey" FOREIGN KEY ("studentID") REFERENCES "Students"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_monthlyFeeId_fkey" FOREIGN KEY ("monthlyFeeId") REFERENCES "MonthlyFee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_BranchesToSubjects" ADD CONSTRAINT "_BranchesToSubjects_A_fkey" FOREIGN KEY ("A") REFERENCES "Branches"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -4,6 +4,7 @@ import { CustomError } from '../responses/custom.error';
 export class UserEntity {
   constructor(
     public id: number,
+    public dni: string,
     public name: string,
     public lastName: string,
     public email: string,
@@ -19,6 +20,7 @@ export class UserEntity {
   static fromObjectAuth(object: { [key: string]: any }) {
     const {
       id,
+      dni,
       name,
       lastName,
       email,
@@ -32,6 +34,7 @@ export class UserEntity {
     } = object;
 
     if (!id) throw CustomError.badRequest('Falta id');
+    if (!dni) throw CustomError.badRequest('Falta el número de carnet');
     if (!name) throw CustomError.badRequest('Falta el nombre');
     if (!lastName) throw CustomError.badRequest('Falta el apellido');
     if (!email) throw CustomError.badRequest('Falta el correo');
@@ -52,6 +55,7 @@ export class UserEntity {
     : undefined;
     return new UserEntity(
       id,
+      dni,
       name,
       lastName,
       email,
@@ -66,13 +70,14 @@ export class UserEntity {
   }
 
   static fromObject(object: { [key: string]: any }) {
-    const { id, name,lastName, email } = object;
+    const { id, dni, name,lastName, email } = object;
 
     if (!id) throw CustomError.badRequest('Falta id');
+    if (!dni) throw CustomError.badRequest('Falta el número de carnet');
     if (!name) throw CustomError.badRequest('Falta el nombre');
     if (!lastName) throw CustomError.badRequest('Falta el apellido');
     if (!email) throw CustomError.badRequest('Falta el correo');
 
-    return new UserEntity(id, name,lastName, email);
+    return new UserEntity(id, dni, name,lastName, email);
   }
 }

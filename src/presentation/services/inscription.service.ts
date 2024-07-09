@@ -38,16 +38,16 @@ export class InscriptionService {
               },
             },
             subject: {
-              include:{
-                category:true,
+              include: {
+                category: true,
               }
             },
             branch: true,
-            price:true,
+            price: true,
           },
         }),
       ]);
-     // console.log("inscriptions many:",inscriptions)
+      // console.log("inscriptions many:",inscriptions)
 
       const resData = CustomSuccessful.response({
         result: {
@@ -66,20 +66,20 @@ export class InscriptionService {
           }),
         },
       });
-      console.log("service:",resData)
+      console.log("service:", resData)
       return resData
     } catch (error) {
       throw CustomError.internalServer('Internal Server Error');
     }
   }
 
-  
+
   async createInscription(inscriptionDto: InscriptionDto, user: UserEntity) {
     try {
       const { ...createInscriptionDto } = inscriptionDto;
       const inscriptionExists = await prisma.inscriptions.findFirst({
         where: {
-          studentId:createInscriptionDto.studentId,
+          studentId: createInscriptionDto.studentId,
           branchId: createInscriptionDto.branchId,
           subjectId: createInscriptionDto.subjectId,
           priceId: createInscriptionDto.priceId,
@@ -106,8 +106,8 @@ export class InscriptionService {
             },
           },
           subject: {
-            include:{
-              category:true,
+            include: {
+              category: true,
             }
           },
           branch: true,
@@ -138,7 +138,7 @@ export class InscriptionService {
         where: {
           AND: [
             {
-              studentId:updateInscriptionDto.studentId,
+              studentId: updateInscriptionDto.studentId,
               branchId: updateInscriptionDto.branchId,
               subjectId: updateInscriptionDto.subjectId,
             },
@@ -179,8 +179,8 @@ export class InscriptionService {
             },
           },
           subject: {
-            include:{
-              category:true,
+            include: {
+              category: true,
             }
           },
         },
@@ -219,7 +219,7 @@ export class InscriptionService {
     }
   }
   /// get Inscription By Id
-  async getInscriptionsById (inscriptionId: number) {
+  async getInscriptionsById(inscriptionId: number) {
     try {
       const inscription = await prisma.inscriptions.findFirst({
         where: { id: inscriptionId },
@@ -235,12 +235,12 @@ export class InscriptionService {
             },
           },
           subject: {
-            include:{
-              category:true,
+            include: {
+              category: true,
             }
           },
           branch: true,
-          price:true,
+          price: true,
         },
       });
       const { ...inscriptionEntity } = InscriptionEntity.fromObject(
@@ -252,7 +252,7 @@ export class InscriptionService {
     }
   }
   // get inscriptions By Id Students
-  async getInscriptionsByIdStundent (paginationDto: PaginationDto, idStundet: number) {
+  async getInscriptionsByIdStundent(paginationDto: PaginationDto, idStundet: number) {
     const { page, limit } = paginationDto;
     try {
       const inscription = await prisma.inscriptions.findFirst({
@@ -269,14 +269,14 @@ export class InscriptionService {
             },
           },
           subject: {
-            include:{
-              category:true,
+            include: {
+              category: true,
             }
           },
           branch: true,
-          price:{
-            include:{
-              classes:true,
+          price: {
+            include: {
+              classes: true,
             }
           },
         },
@@ -290,7 +290,7 @@ export class InscriptionService {
     }
   }
 
-  
+
 }
 
 

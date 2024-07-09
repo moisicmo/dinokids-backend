@@ -16,7 +16,5 @@ export class SubjectDto {
     if (!code) return ['El código es obligatorio'];
 
     return [undefined, new SubjectDto(categoryId, name, code)];
-
   }
-
 }

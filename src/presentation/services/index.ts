@@ -4,6 +4,8 @@ export * from './email.service';
 export * from './permission.service';
 export * from './role.service';
 export * from './subject.service';
+export * from './module.service';
+export * from './classe.service';
 export * from './category.service';
 export * from './staff.service';
 export * from './student.service';
