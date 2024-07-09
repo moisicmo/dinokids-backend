@@ -10,7 +10,7 @@ export const invoiceSchema = v.object({
   issuerNIT:v.string(),
   buyerNIT:v.string(),
   buyerName:v.string(),
-  studentID :v.number(),
+  studentId :v.number(),
   monthlyFeeId:v.number(),
 });
 
@@ -27,7 +27,7 @@ export const invoiceOuputSchema = v.object({
   issuerNIT:v.string(),
   buyerNIT:v.string(),
   buyerName:v.string(),
-  studentID :v.number(),
+  studentId :v.number(),
   monthlyFeeId:v.number(),
 });
 

@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import { CustomError, PaginationDto, StaffDto,CustomSuccessful } from '../../domain';
-import {createMonthlyFee, getOneMonthlyFee, getOneMonthlyFeeByIdInscriptions,updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee, createMonthlyFeePayment}  from '../services';
+import {createMonthlyFee, getOneMonthlyFee, getOneMonthlyFeeByIdInscriptions,updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee, createMonthlyFeePayment, createInvoice}  from '../services';
 import { TMonthlyfeeAndMethodPayInput, TMonthlyfeeInput, TMonthlyfeeOutput } from '../../schemas/monthlyFee.schema';
 import { StudentService, InscriptionService } from '../services';
 import { TPriceOutput } from '../../schemas/price';
@@ -58,6 +58,22 @@ console.log("createMonthlyFee:", MonthlyFee);
       isInscription: true, 
       monthlyFeeId: MonthlyFee.id
     })
+
+
+    const invoice = await createInvoice({
+      invoiceNumber:"12345",
+      authorizationNumber:"12345",
+      controlCode:"12345",
+      issueDate:new Date(),
+      dueDate :new Date(),
+      totalAmount,
+      issuerNIT:"12345",
+      buyerNIT:body.buyerNIT,
+      buyerName:body.buyerName,
+      studentId,
+      monthlyFeeId:MonthlyFee.id,
+    })
+    console.log("invoice:", invoice);
 
 		 return res.status(201).json(MonthlyFee)
 	} catch (error) {

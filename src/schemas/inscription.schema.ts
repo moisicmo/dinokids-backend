@@ -10,7 +10,10 @@ export const inscriptionPaymentSchema = v.object({
   inscriptionsId : v.number(),
   amount: v.number(),
   transactionNumber: v.string(),
-  payMethod:        v.enum_(MethodPayEnum)
+  payMethod:        v.enum_(MethodPayEnum),
+  buyerNIT: v.string(),
+  buyerName:v.string(),
+
 });
 
 export type TInscriptionPaymentInput = v.InferInput<typeof inscriptionPaymentSchema>;
