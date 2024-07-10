@@ -20,7 +20,7 @@ export async function createInscriptionFeeCtrl(
 	res: Response
 ) {
   const body = req.body;
-  console.log("body inscripcion:", body)
+  console.log("body inscripcion :", body)
   let insciptionService = new InscriptionService();
 	try {
      //find inscription by Id
