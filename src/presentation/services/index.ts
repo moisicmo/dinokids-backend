@@ -15,3 +15,4 @@ export * from './room.service';
 export * from './price.service';
 export * from './monthlyFee.service';
 export * from './monthlyFeePayment.service';
+export * from './invoice.service';

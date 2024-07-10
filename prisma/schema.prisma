@@ -258,8 +258,8 @@ model Invoice {
   issuerNIT          String
   buyerNIT           String
   buyerName          String
-  studentID          Int
-  student            Students  @relation(fields: [studentID], references: [id])
+  studentId          Int
+  student            Students  @relation(fields: [studentId], references: [id])
   monthlyFeeId       Int?
   monthlyFee         MonthlyFee? @relation(fields: [monthlyFeeId], references: [id])
 }
