@@ -76,6 +76,8 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
             },
           },
           inscriptions:true,
+          payments:true,
+          invoices:true,
         }
       }),
     ]);

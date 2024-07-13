@@ -44,10 +44,15 @@ export class InscriptionService {
             },
             branch: true,
             price: true,
+            monthlyFee:{
+              include:{
+                invoices:true,
+              }
+            }
           },
         }),
       ]);
-      // console.log("inscriptions many:",inscriptions)
+       //console.log("inscriptions many:",inscriptions)
 
       const resData = CustomSuccessful.response({
         result: {

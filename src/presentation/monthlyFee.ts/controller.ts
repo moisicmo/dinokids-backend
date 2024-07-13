@@ -185,6 +185,7 @@ export async function createMonthlyFeeCtrl(
 
   try {
     const  MonthlyFees = await getMonthlyFee(paginationDto!)
+    console.log("getMonthlyFee:", MonthlyFees)
     return res.status(201).json(MonthlyFees)
   } catch (error) {
     handleError(error, res)
