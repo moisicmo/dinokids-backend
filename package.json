@@ -44,7 +44,6 @@
     "express": "^4.18.2",
     "express-fileupload": "^1.5.0",
     "jsonwebtoken": "^9.0.2",
-    "nanoid": "^5.0.7",
     "nodemailer": "^6.9.13",
     "pdfmake": "^0.2.10",
     "read-excel-file": "^5.8.1",

@@ -49,6 +49,7 @@ export const GlobalMonthlyfeeSchema = v.object({
   studentId  :  v.number(),
   amountPaid  : v.number(),
   state  :     v.boolean(),
+
 });
 
 export type TMonthlyfeeOutput = v.InferInput<typeof GlobalMonthlyfeeSchema >;

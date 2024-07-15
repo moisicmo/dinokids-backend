@@ -5,8 +5,8 @@ import { TMonthlyfeeAndMethodPayInput, TMonthlyfeeInput, TMonthlyfeeOutput } fro
 import { StudentService, InscriptionService } from '../services';
 import { TPriceOutput } from '../../schemas/price';
 import { TInscriptionPaymentInput } from '../../schemas/inscription.schema';
-import { customAlphabet } from 'nanoid';
-
+import { generatePdf } from '../../config';
+import { generatePayInscriptionPdf } from '../../config/documents/pdf/monthleFee.pdf';
 
 const handleError = (error: unknown, res: Response) => {
   if (error instanceof CustomError) {
@@ -24,7 +24,7 @@ export async function createInscriptionFeeCtrl(
   const body = req.body;
   console.log("body inscripcion :", body)
   let insciptionService = new InscriptionService();
-  const nanoid = customAlphabet('1234567890', 5)
+
 	try {
      //find inscription by Id
       let data = await insciptionService.getInscriptionsById(body.inscriptionsId) as any;
@@ -52,12 +52,10 @@ export async function createInscriptionFeeCtrl(
       amountPaid:0,
       state
     }) as any;
-
     
 console.log("createMonthlyFee:", MonthlyFee);
     const MonthlyFeePayment = await createMonthlyFeePayment({
       ...body,
-      transactionNumber: body.payMethod == 'CASH'? 'aa' : body.transactionNumber,
       paymentDate: new Date(), 
       commitmentDate: new Date(), 
       isInscription: true, 
@@ -79,8 +77,9 @@ console.log("createMonthlyFee:", MonthlyFee);
       monthlyFeeId:MonthlyFee.id,
     })
     console.log("invoice:", invoice);
-
-		 return res.status(201).json(MonthlyFee)
+    //const document = await generatePayInscriptionPdf(MonthlyFee);
+    //const dataSend =  CustomSuccessful.response({result: {...MonthlyFee} });
+    return res.status(201).json({...MonthlyFee, invoices: [invoice], payments:[MonthlyFeePayment]})
 	} catch (error) {
     handleError(error, res)
 	}
