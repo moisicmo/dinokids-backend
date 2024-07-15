@@ -10,7 +10,7 @@ export async function createMonthlyFeePayment(input: TMonthlyFeePaymentInput) {
       monthlyFeeId: input.monthlyFeeId,
       amount: input.amount,
       paymentDate: input.paymentDate,
-      commitmentDate: new Date(input.commitmentDate),
+      commitmentDate: input.commitmentDate,
       transactionNumber: input.transactionNumber,
       isInscription:  input.isInscription,
       payMethod: input.payMethod,

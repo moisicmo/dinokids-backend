@@ -120,14 +120,30 @@ export async function createMonthlyFeeCtrl(
 
     const MonthlyFeePayment = await createMonthlyFeePayment({
       amount: body.amountPaid,
-      commitmentDate: body.commitmentDate,
+      commitmentDate:new Date(body.commitmentDate),
       paymentDate: new Date(), 
       isInscription: body.isInscription, 
       monthlyFeeId: data.id,
       payMethod: body.payMethod,
       transactionNumber: body.transactionNumber
     })
-    const dataSend =  CustomSuccessful.response({result: {...MonthlyFee, message:'update'} });
+
+    const invoice = await createInvoice({
+      invoiceNumber:"12345",
+      authorizationNumber:"12345",
+      controlCode:"12345",
+      issueDate:new Date(),
+      dueDate :new Date(),
+      totalAmount: body.amountPaid,
+      issuerNIT:"12345",
+      buyerNIT:body.buyerNIT,
+      buyerName:body.buyerName,
+      studentId: data.studentId,
+      monthlyFeeId:data.id,
+    })
+    console.log("invoice:", invoice);
+
+    const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,invoices: [invoice], payments:[MonthlyFeePayment], message:'update'} });
     return res.status(201).json(dataSend)
        
       }else{
