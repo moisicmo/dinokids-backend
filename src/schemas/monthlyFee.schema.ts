@@ -31,7 +31,9 @@ export const monthlyfeeAndMethodPaySchema = v.object({
   commitmentDate  : v.pipe(v.date(), v.toMinValue(new Date())),
   transactionNumber: v.string(),
   isInscription:v.boolean(),
-  payMethod:        v.enum_(MethodPayEnum)
+  payMethod:        v.enum_(MethodPayEnum),
+  buyerNIT: v.string(),
+  buyerName: v.string(),
 });
 
 export type TMonthlyfeeAndMethodPayInput = v.InferInput<typeof monthlyfeeAndMethodPaySchema>;  
@@ -49,6 +51,8 @@ export const GlobalMonthlyfeeSchema = v.object({
   studentId  :  v.number(),
   amountPaid  : v.number(),
   state  :     v.boolean(),
+  buyerNIT: v.string(),
+  buyerName: v.string(),
 
 });
 
