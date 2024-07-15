@@ -1,4 +1,5 @@
 import { BranchEntity, StaffEntity, StudentEntity, SubjectEntity, PriceEntity } from '..';
+import { TMonthlyfeeInput } from '../../schemas/monthlyFee.schema';
 
 export class InscriptionEntity {
   constructor(
@@ -10,7 +11,8 @@ export class InscriptionEntity {
     public staff?: StaffEntity,
     public subject?: SubjectEntity,
     public branch?: BranchEntity,
-    public price?: PriceEntity
+    public price?: PriceEntity,
+    public monthlyFee?: any,
   ) {}
 
   static fromObject(object: { [key: string]: any }) {
@@ -23,14 +25,16 @@ export class InscriptionEntity {
       staff,
       subject,
       branch,
-      price
+      price,
+      monthlyFee,
     } = object;
     const studentEntity = StudentEntity.fromObject(student);
     const staffEntity = StaffEntity.fromObject(staff);
     const subjectEntity = SubjectEntity.fromObject(subject);
     const branchEntity = BranchEntity.fromObject(branch);
     const priceEntity = PriceEntity.fromObject(price);
-
+    const monthlyFeeEntity = monthlyFee;
+    
 
     return new InscriptionEntity(
       id,
@@ -42,6 +46,7 @@ export class InscriptionEntity {
       subjectEntity,
       branchEntity,
       priceEntity,
+      monthlyFee,
     );
   }
 }

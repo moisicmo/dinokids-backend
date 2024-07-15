@@ -1,13 +1,11 @@
 const pdfMakeX = require('pdfmake');
 import { format } from 'date-fns';
 import esES from 'date-fns/locale/es';
-
-import { InscriptionEntity } from '../../../domain';
+import { TMonthlyfeeOutput } from '../../../schemas/monthlyFee.schema';
 import { numberToString } from '../..';
 
-export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
-
-  //console.log("pdfinscription:",inscriptionEntity)
+export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) => {
+  console.log("pdfmonthyfee",monthleFee)
   const fonts = {
     Roboto: {
       normal: 'Helvetica',
@@ -34,7 +32,7 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
             [
               { text: 'DINO KIDS', style: 'styleLeft' },
               {
-                text: `COMPROBANTE N° ${inscriptionEntity.id}`,
+                text: `COMPROBANTE N° ${monthleFee.id}`,
                 style: 'styleRight',
               },
             ],
@@ -64,21 +62,21 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
           body: [
             [
               { text: 'Fecha:', style: 'styleLeft', bold: true },
-              `${format(inscriptionEntity.createdAt, 'dd MMMM yyyy', {
+              `${format(monthleFee.createdAt, 'dd MMMM yyyy', {
                 locale: esES,
               })}`,
             ],
             [
               { text: 'Estudiante:', style: 'styleLeft', bold: true },
-              `${inscriptionEntity.student?.name} ${inscriptionEntity.student?.lastName}`,
+              `${monthleFee.studentId}`,
             ],
             [
               { text: 'Código de estudiante:', style: 'styleLeft', bold: true },
-              `${inscriptionEntity.student?.code}`,
+              `${monthleFee.studentId}`,
             ],
             [
               { text: 'Emitido por:', style: 'styleLeft', bold: true },
-              `${inscriptionEntity.staff?.name} ${inscriptionEntity.staff?.lastName}`,
+              `${monthleFee.amountPaid}`,
             ],
           ],
         },
@@ -130,12 +128,12 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
                 margin: [1, 3, 1, 3],
               },
               {
-                text: `${inscriptionEntity.total}`,
+                text: `${monthleFee.totalAmount}`,
                 style: 'styleRight',
                 margin: [1, 3, 1, 3],
               },
               {
-                text: `${inscriptionEntity.total}`,
+                text: `${monthleFee.totalInscription}`,
                 style: 'styleRight',
                 margin: [1, 3, 1, 3],
               },
@@ -152,7 +150,7 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
             [
               {
                 text: `Son: ${numberToString(
-                  inscriptionEntity.total
+                  monthleFee.totalAmount
                 )} 00/100 Bolivianos`,
                 style: 'styleLeft',
               },
@@ -163,7 +161,7 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
                   body: [
                     [
                       { text: 'TOTAL A PAGAR:', style: 'styleRight' },
-                      `${inscriptionEntity.total}`,
+                      `${monthleFee.totalInscription}`,
                     ],
                   ],
                 },
