@@ -91,7 +91,7 @@ export async function createMonthlyFeeCtrl(
 	res: Response
 ) {
   const body = req.body;
-  console.log(req.body);
+  console.log("body createMonthlyFee:",req.body);
 	try {
      //find inscription by Id
       let data = await getOneMonthlyFeeByIdInscriptions(body.inscriptionId);
@@ -118,6 +118,7 @@ export async function createMonthlyFeeCtrl(
 
     const  MonthlyFee = await updateMonthlyFee(data.id,{...body} )
 
+     console.log("MOnthlyFee:",MonthlyFee);
     const MonthlyFeePayment = await createMonthlyFeePayment({
       amount: body.amountPaid,
       commitmentDate:new Date(body.commitmentDate),
@@ -127,6 +128,7 @@ export async function createMonthlyFeeCtrl(
       payMethod: body.payMethod,
       transactionNumber: body.transactionNumber
     })
+    console.log("monthlyfeePayment:", MonthlyFeePayment)
 
     const invoice = await createInvoice({
       invoiceNumber:"12345",
@@ -188,7 +190,21 @@ export async function createMonthlyFeeCtrl(
       isInscription: true, 
       monthlyFeeId: MonthlyFee.id
     })
-     const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,message:'create'} });
+    const invoice = await createInvoice({
+      invoiceNumber:"12345",
+      authorizationNumber:"12345",
+      controlCode:"12345",
+      issueDate:new Date(),
+      dueDate :new Date(),
+      totalAmount: body.amountPaid,
+      issuerNIT:"12345",
+      buyerNIT:body.buyerNIT,
+      buyerName:body.buyerName,
+      studentId: body.studentId,
+      monthlyFeeId:MonthlyFee.id,
+    })
+    console.log("invoice:", invoice);
+     const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,invoices: [invoice], payments:[MonthlyFeePayment],message:'create'} });
      return res.status(201).json(dataSend)
 
       }
