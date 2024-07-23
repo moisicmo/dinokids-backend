@@ -77,9 +77,10 @@ console.log("createMonthlyFee:", MonthlyFee);
       monthlyFeeId:MonthlyFee.id,
     })
     console.log("invoice:", invoice);
-    //const document = await generatePayInscriptionPdf(MonthlyFee);
-    //const dataSend =  CustomSuccessful.response({result: {...MonthlyFee} });
-    return res.status(201).json({...MonthlyFee, invoices: [invoice], payments:[MonthlyFeePayment]})
+    const document = await generatePayInscriptionPdf(MonthlyFee);
+    const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,invoices: [invoice], payments:[MonthlyFeePayment], document} });
+    //return res.status(201).json({...MonthlyFee, invoices: [invoice], payments:[MonthlyFeePayment]})
+    return res.status(200).json(dataSend)
 	} catch (error) {
     handleError(error, res)
 	}

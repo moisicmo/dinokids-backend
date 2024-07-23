@@ -62,7 +62,7 @@ export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) =
           body: [
             [
               { text: 'Fecha:', style: 'styleLeft', bold: true },
-              `${format(monthleFee.createdAt, 'dd MMMM yyyy', {
+              `${format(monthleFee.startDate, 'dd MMMM yyyy', {
                 locale: esES,
               })}`,
             ],
