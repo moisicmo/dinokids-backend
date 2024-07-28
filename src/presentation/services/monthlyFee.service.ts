@@ -150,7 +150,7 @@ export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
       },
       inscriptions: true,
     }});
-    return CustomSuccessful.response({ result: res });
+    return  res;
 	} catch (error) {
 		console.log(error)
 		throw CustomError.internalServer('Internal Server Error');

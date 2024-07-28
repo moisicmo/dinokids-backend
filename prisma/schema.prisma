@@ -249,7 +249,7 @@ model MonthlyFeePayment {
 
 model Invoice {
   id                 Int      @id @default(autoincrement())
-  invoiceNumber      String
+  invoiceNumber      Int   @default(autoincrement()) @unique
   authorizationNumber String
   controlCode        String
   issueDate          DateTime

@@ -7,6 +7,8 @@ import { TPriceOutput } from '../../schemas/price';
 import { TInscriptionPaymentInput } from '../../schemas/inscription.schema';
 import { generatePdf } from '../../config';
 import { generatePayInscriptionPdf } from '../../config/documents/pdf/monthleFee.pdf';
+import { TMonthlyFeePaymentOutput } from '../../schemas/monthlyFeePayment';
+import { TInvoiceOuput } from '../../schemas/invoice.schema';
 
 const handleError = (error: unknown, res: Response) => {
   if (error instanceof CustomError) {
@@ -22,7 +24,7 @@ export async function createInscriptionFeeCtrl(
 	res: Response
 ) {
   const body = req.body;
-  console.log("body inscripcion :", body)
+  //console.log("body inscripcion :", body)
   let insciptionService = new InscriptionService();
 
 	try {
@@ -53,7 +55,7 @@ export async function createInscriptionFeeCtrl(
       state
     }) as any;
     
-console.log("createMonthlyFee:", MonthlyFee);
+//console.log("createMonthlyFee:", MonthlyFee);
     const MonthlyFeePayment = await createMonthlyFeePayment({
       ...body,
       paymentDate: new Date(), 
@@ -64,20 +66,20 @@ console.log("createMonthlyFee:", MonthlyFee);
 
 
     const invoice = await createInvoice({
-      invoiceNumber:"12345",
-      authorizationNumber:"12345",
-      controlCode:"12345",
+
+      authorizationNumber:process.env.PAY_AUTHORIZATION_NUMBER as string,
+      controlCode:process.env.PAY_CONTROL_CODE as string,
       issueDate:new Date(),
       dueDate :new Date(),
       totalAmount,
-      issuerNIT:"12345",
+      issuerNIT:process.env.PAY_ISSUER_NIT as string,
       buyerNIT:body.buyerNIT,
       buyerName:body.buyerName,
       studentId,
       monthlyFeeId:MonthlyFee.id,
     })
-    console.log("invoice:", invoice);
-    const document = await generatePayInscriptionPdf(MonthlyFee);
+    //console.log("invoice:", invoice);
+    const document = await generatePayInscriptionPdf({monthleFee:MonthlyFee as TMonthlyfeeOutput,monthlyFeePayment:MonthlyFeePayment as TMonthlyFeePaymentOutput,invoice:invoice as TInvoiceOuput});
     const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,invoices: [invoice], payments:[MonthlyFeePayment], document} });
     //return res.status(201).json({...MonthlyFee, invoices: [invoice], payments:[MonthlyFeePayment]})
     return res.status(200).json(dataSend)
@@ -92,7 +94,7 @@ export async function createMonthlyFeeCtrl(
 	res: Response
 ) {
   const body = req.body;
-  console.log("body createMonthlyFee:",req.body);
+  //console.log("body createMonthlyFee:",req.body);
 	try {
      //find inscription by Id
       let data = await getOneMonthlyFeeByIdInscriptions(body.inscriptionId);
@@ -107,9 +109,9 @@ export async function createMonthlyFeeCtrl(
      
       //control pay month
       let amountPaid = await data.amountPaid + body.amountPaid;
-      console.log('amountPaid:', amountPaid);
+      //console.log('amountPaid:', amountPaid);
       let amountPending = await data.totalAmount - amountPaid;
-      console.log('amountPending:', amountPending);
+      //console.log('amountPending:', amountPending);
 
       if (amountPending < 0 ) throw CustomError.badRequest(`revise el pago realizado, la institucion no puede salir deviendo, pago pendiente la clase:${data.amountPending}`);
 
@@ -117,9 +119,9 @@ export async function createMonthlyFeeCtrl(
       body.amountPending = amountPending;
       body.state = amountPending <= 0 ? true : false;
 
-    const  MonthlyFee = await updateMonthlyFee(data.id,{...body} )
+    const   MonthlyFee = await updateMonthlyFee(data.id,{...body} )
 
-     console.log("MOnthlyFee:",MonthlyFee);
+     //console.log("MOnthlyFee:",MonthlyFee);
     const MonthlyFeePayment = await createMonthlyFeePayment({
       amount: body.amountPaid,
       commitmentDate:new Date(body.commitmentDate),
@@ -129,29 +131,31 @@ export async function createMonthlyFeeCtrl(
       payMethod: body.payMethod,
       transactionNumber: body.transactionNumber
     })
-    console.log("monthlyfeePayment:", MonthlyFeePayment)
+    //console.log("monthlyfeePayment:", MonthlyFeePayment)
 
     const invoice = await createInvoice({
-      invoiceNumber:"12345",
-      authorizationNumber:"12345",
-      controlCode:"12345",
+
+      authorizationNumber:process.env.PAY_AUTHORIZATION_NUMBER as string,
+      controlCode:process.env.PAY_CONTROL_CODE as string,
       issueDate:new Date(),
       dueDate :new Date(),
       totalAmount: body.amountPaid,
-      issuerNIT:"12345",
+      issuerNIT:process.env.PAY_ISSUER_NIT as string,
       buyerNIT:body.buyerNIT,
       buyerName:body.buyerName,
       studentId: data.studentId,
       monthlyFeeId:data.id,
     })
-    console.log("invoice:", invoice);
+    ////////console.log("invoice:", invoice);
 
-    const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,invoices: [invoice], payments:[MonthlyFeePayment], message:'update'} });
+    const document = await generatePayInscriptionPdf({monthleFee:MonthlyFee as any,monthlyFeePayment:MonthlyFeePayment as TMonthlyFeePaymentOutput,invoice:invoice as TInvoiceOuput});
+
+    const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,invoices: [invoice], payments:[MonthlyFeePayment], message:'update', document} });
     return res.status(201).json(dataSend)
        
       }else{
         const body = req.body;
-  console.log("body inscripcion:", body)
+  //////console.log("body inscripcion:", body)
   let insciptionService = new InscriptionService();
   let dataIns = await insciptionService.getInscriptionsById(body.inscriptionId) as any;
       // control inscription id
@@ -192,20 +196,21 @@ export async function createMonthlyFeeCtrl(
       monthlyFeeId: MonthlyFee.id
     })
     const invoice = await createInvoice({
-      invoiceNumber:"12345",
-      authorizationNumber:"12345",
-      controlCode:"12345",
+
+      authorizationNumber: process.env.PAY_AUTHORIZATION_NUMBER as string,
+      controlCode: process.env.PAY_CONTROL_CODE as string,
       issueDate:new Date(),
       dueDate :new Date(),
       totalAmount: body.amountPaid,
-      issuerNIT:"12345",
+      issuerNIT: process.env.PAY_ISSUER_NIT as string,
       buyerNIT:body.buyerNIT,
       buyerName:body.buyerName,
       studentId: body.studentId,
       monthlyFeeId:MonthlyFee.id,
     })
-    console.log("invoice:", invoice);
-     const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,invoices: [invoice], payments:[MonthlyFeePayment],message:'create'} });
+    //////console.log("invoice:", invoice);
+    const document = await generatePayInscriptionPdf({monthleFee:MonthlyFee as TMonthlyfeeOutput,monthlyFeePayment:MonthlyFeePayment as TMonthlyFeePaymentOutput,invoice:invoice as TInvoiceOuput});
+     const dataSend =  CustomSuccessful.response({result: {...MonthlyFee,invoices: [invoice], payments:[MonthlyFeePayment],message:'create', document} });
      return res.status(201).json(dataSend)
 
       }
@@ -222,7 +227,7 @@ export async function createMonthlyFeeCtrl(
 
   try {
     const  MonthlyFees = await getMonthlyFee(paginationDto!)
-    console.log("getMonthlyFee:", MonthlyFees)
+    ////console.log("getMonthlyFee:", MonthlyFees)
     return res.status(201).json(MonthlyFees)
   } catch (error) {
     handleError(error, res)
@@ -232,7 +237,7 @@ export async function createMonthlyFeeCtrl(
 export const findOneMonthlyFeeCtrl = async (req: Request, res: Response) => {
 
   const id = req.params.id
-  console.log(id)
+  //console.log(id)
   try {
     const  MonthlyFee = await getOneMonthlyFee(parseInt(id))
     return res.status(201).json(MonthlyFee)
@@ -247,7 +252,7 @@ export const updateMonthlyFeeCtrl = async (
 
   const body = req.body;
   const id = req.params.id
-  console.log(id)
+  //console.log(id)
   try {
       // find monthly fee
       const  data = await getOneMonthlyFee(parseInt(id)) as any;
@@ -263,9 +268,9 @@ export const updateMonthlyFeeCtrl = async (
      }
       //control pay month
       let amountPaid = await dataMonthlyFee.amountPaid + body.amountPaid;
-      console.log('amountPaid:', amountPaid);
+      //console.log('amountPaid:', amountPaid);
       let amountPending = await dataMonthlyFee.totalAmount - amountPaid;
-      console.log('amountPending:', amountPending);
+      //console.log('amountPending:', amountPending);
 
       if (amountPending < 0 ) throw CustomError.badRequest(`revise el pago realizado, la institucion no puede salir deviendo, pago pendiente la clase:${dataMonthlyFee.amountPending}`);
 
