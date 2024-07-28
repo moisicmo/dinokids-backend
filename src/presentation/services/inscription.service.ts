@@ -121,12 +121,14 @@ export class InscriptionService {
       });
       const { ...inscriptionEntity } = await InscriptionEntity.fromObject(inscription);
       const document = await generatePdf(inscriptionEntity);
-      return CustomSuccessful.response({
+      const resData = CustomSuccessful.response({
         result: {
           ...inscriptionEntity,
           document
         }
-      });
+      })
+      console.log("create inscription resData:", resData);
+      return resData;
     } catch (error) {
       throw CustomError.internalServer(`${error}`);
     }

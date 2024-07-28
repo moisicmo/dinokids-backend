@@ -28,6 +28,7 @@ export const GlobalMonthlyFeePaymentSchema = v.object({
   commitmentDate  : v.pipe(v.date(), v.toMinValue(new Date())),
   transactionNumber: v.string(),
   payMethod:        v.enum_(MethodPayEnum),
+  isInscription:v.boolean(),
 });
 
 export type TMonthlyFeePaymentOutput = v.InferInput<typeof GlobalMonthlyFeePaymentSchema >;

@@ -57,3 +57,4 @@ export const GlobalMonthlyfeeSchema = v.object({
 });
 
 export type TMonthlyfeeOutput = v.InferInput<typeof GlobalMonthlyfeeSchema >;
+

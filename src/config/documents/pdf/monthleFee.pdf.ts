@@ -3,9 +3,14 @@ import { format } from 'date-fns';
 import esES from 'date-fns/locale/es';
 import { TMonthlyfeeOutput } from '../../../schemas/monthlyFee.schema';
 import { numberToString } from '../..';
+import { TMonthlyFeePaymentOutput } from '../../../schemas/monthlyFeePayment';
+import { invoiceOuputSchema, TInvoiceOuput } from '../../../schemas/invoice.schema';
 
-export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) => {
-  console.log("pdfmonthyfee",monthleFee)
+export const generatePayInscriptionPdf = async ({monthleFee,monthlyFeePayment,invoice}:{monthleFee: TMonthlyfeeOutput,monthlyFeePayment:TMonthlyFeePaymentOutput, invoice:TInvoiceOuput
+}) => {
+ // console.log("pdfmonthyfee:",monthleFee)
+  //console.log("pdfmonthlyFeePayment:",monthlyFeePayment)
+  //console.log("pdfinvoice:",invoice)
   const fonts = {
     Roboto: {
       normal: 'Helvetica',
@@ -30,15 +35,32 @@ export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) =
           widths: ['*', '*'],
           body: [
             [
-              { text: 'DINO KIDS', style: 'styleLeft' },
+              { text: `DINO KIDS ${invoice.issuerNIT}`, style: 'styleLeft' },
               {
-                text: `COMPROBANTE N° ${monthleFee.id}`,
+                text: `FECHA:° ${format(invoice.issueDate, 'dd MMMM yyyy', {
+                  locale: esES,
+                })}`,
                 style: 'styleRight',
+              },
+            ],
+            [{
+              text: `N Recibo:° ${invoice.invoiceNumber}`,
+              style: 'styleLeft',
+            },
+            {
+              text: `CODIGO:° ${invoice.controlCode}`,
+              style: 'styleRight',
+            },],
+            [
+              {
+                text: 'Calle Batallon Colorados ',
+                style: 'styleLeft',
+                colSpan: 2,
               },
             ],
             [
               {
-                text: 'SUCURSAL ',
+                text: 'www.dinokids.com.bo ',
                 style: 'styleLeft',
                 colSpan: 2,
               },
@@ -49,7 +71,7 @@ export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) =
       },
       {
         margin: [0, 30, 0, 0],
-        text: 'COMPROVANTE DE PAGO',
+        text: 'RECIBO OFICIAL',
         fontSize: 24,
         alignment: 'center',
         bold: true,
@@ -61,23 +83,23 @@ export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) =
           widths: ['auto', '*'],
           body: [
             [
-              { text: 'Fecha:', style: 'styleLeft', bold: true },
-              `${format(monthleFee.createdAt, 'dd MMMM yyyy', {
-                locale: esES,
-              })}`,
+              { text: 'Dinokids Recibe De:', style: 'styleLeft', bold: true },
+              `${invoice.buyerName}`,
             ],
             [
-              { text: 'Estudiante:', style: 'styleLeft', bold: true },
-              `${monthleFee.studentId}`,
+              { text: 'NIT/DNI:', style: 'styleLeft', bold: true },
+              `${invoice.buyerNIT}`,
             ],
             [
-              { text: 'Código de estudiante:', style: 'styleLeft', bold: true },
-              `${monthleFee.studentId}`,
+              { text: 'Inscripcion:', style: 'styleLeft', bold: true },
+              `${monthleFee.totalInscription}`,
             ],
             [
-              { text: 'Emitido por:', style: 'styleLeft', bold: true },
-              `${monthleFee.amountPaid}`,
+              { text: 'Mensualidad:', style: 'styleLeft', bold: true },
+              `${monthleFee.totalAmount}`,
             ],
+            
+           
           ],
         },
       },
@@ -102,19 +124,19 @@ export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) =
                 margin: [1, 3, 1, 3],
               },
               {
-                text: 'DESCRIPCIÓN',
+                text: 'Descripción Programa',
                 bold: true,
                 style: 'styleLeft',
                 margin: [1, 3, 1, 3],
               },
               {
-                text: 'PRECIO',
+                text: 'Saldo',
                 bold: true,
                 style: 'styleRight',
                 margin: [1, 3, 1, 3],
               },
               {
-                text: 'SUBTOTAL',
+                text: 'Precio Total',
                 bold: true,
                 style: 'styleRight',
                 margin: [1, 3, 1, 3],
@@ -123,17 +145,17 @@ export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) =
             [
               { text: `1`, style: 'styleRight', margin: [1, 3, 1, 3] },
               {
-                text: `INSCRIPCIÓN`,
+                text: `${monthlyFeePayment.isInscription ? 'INSCRIPCIÓN' : 'MENSUALIDAD'}`,
                 style: 'styleCenter',
                 margin: [1, 3, 1, 3],
               },
               {
-                text: `${monthleFee.totalAmount}`,
+                text: `${monthlyFeePayment.isInscription ? '0' : monthleFee.amountPending}`,
                 style: 'styleRight',
                 margin: [1, 3, 1, 3],
               },
               {
-                text: `${monthleFee.totalInscription}`,
+                text: `${monthlyFeePayment.isInscription ? monthleFee.totalInscription : monthlyFeePayment.amount}`,
                 style: 'styleRight',
                 margin: [1, 3, 1, 3],
               },
@@ -150,7 +172,7 @@ export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) =
             [
               {
                 text: `Son: ${numberToString(
-                  monthleFee.totalAmount
+                  monthlyFeePayment.isInscription ? monthleFee.totalInscription : monthlyFeePayment.amount
                 )} 00/100 Bolivianos`,
                 style: 'styleLeft',
               },
@@ -161,7 +183,7 @@ export const generatePayInscriptionPdf = async (monthleFee: TMonthlyfeeOutput) =
                   body: [
                     [
                       { text: 'TOTAL A PAGAR:', style: 'styleRight' },
-                      `${monthleFee.totalInscription}`,
+                      `${monthlyFeePayment.isInscription ? monthleFee.totalInscription : monthlyFeePayment.amount}`,
                     ],
                   ],
                 },
