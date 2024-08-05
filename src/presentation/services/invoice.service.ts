@@ -6,7 +6,13 @@ const prisma = new PrismaClient();
 
 export async function createInvoice(input: TInvoiceInput) {
 	try {
-		const res = await prisma.invoice.create({data:input});
+		const res = await prisma.invoice.create(
+      {
+        data:{
+          invoiceNumber:'1',
+          ...input,
+        }
+      });
     return res;
 	} catch (error) {
 		console.log(error)
