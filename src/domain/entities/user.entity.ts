@@ -1,4 +1,4 @@
-import { StaffAuthEntity, StudentAuthEntity, StudentEntity, TeacherAuthEntity, TeacherEntity } from '..';
+import { StaffAuthEntity, StudentAuthEntity, TeacherAuthEntity } from '..';
 import { CustomError } from '../responses/custom.error';
 
 export class UserEntity {
@@ -12,6 +12,7 @@ export class UserEntity {
     public password?: string,
     public codeValidation?: string,
     public image?: string,
+    public phone?: string, // Asegúrate de incluir phone aquí
     public staffs?: StaffAuthEntity,
     public students?: StudentAuthEntity,
     public teachers?: TeacherAuthEntity,
@@ -28,6 +29,7 @@ export class UserEntity {
       password,
       codeValidation,
       image,
+      phone, // Incluye phone aquí
       staff,
       student,
       teacher,
@@ -40,19 +42,20 @@ export class UserEntity {
     if (!email) throw CustomError.badRequest('Falta el correo');
     if (!emailValidated)
     throw CustomError.badRequest('Falta la validación del correo');
-  if (!password) throw CustomError.badRequest('Falta la contraseña');
+    if (!password) throw CustomError.badRequest('Falta la contraseña');
   
-  const staffAuthEntity = staff
+    const staffAuthEntity = staff
       ? StaffAuthEntity.fromObject(staff)
       : undefined;
     
     const studentAuthEntity = student
-    ? StudentAuthEntity.fromObject(student)
-    : undefined;
+      ? StudentAuthEntity.fromObject(student)
+      : undefined;
 
     const teacherAuthEntity = teacher
-    ? TeacherAuthEntity.fromObject(teacher)
-    : undefined;
+      ? TeacherAuthEntity.fromObject(teacher)
+      : undefined;
+
     return new UserEntity(
       id,
       dni,
@@ -63,6 +66,7 @@ export class UserEntity {
       password,
       codeValidation,
       image,
+      phone, // Asegúrate de pasar phone aquí
       staffAuthEntity,
       studentAuthEntity,
       teacherAuthEntity,
@@ -70,7 +74,7 @@ export class UserEntity {
   }
 
   static fromObject(object: { [key: string]: any }) {
-    const { id, dni, name,lastName, email } = object;
+    const { id, dni, name, lastName, email, phone } = object; // Incluye phone aquí
 
     if (!id) throw CustomError.badRequest('Falta id');
     if (!dni) throw CustomError.badRequest('Falta el número de carnet');
@@ -78,6 +82,6 @@ export class UserEntity {
     if (!lastName) throw CustomError.badRequest('Falta el apellido');
     if (!email) throw CustomError.badRequest('Falta el correo');
 
-    return new UserEntity(id, dni, name,lastName, email);
+    return new UserEntity(id, dni, name, lastName, email, undefined, undefined, undefined, undefined, phone); // Incluye phone aquí
   }
 }

@@ -9,7 +9,6 @@ const prisma = new PrismaClient();
 export async function createPrice(input: TPriceInput) {
 	try {
 		const res = await prisma.price.create({data:{
-      classesId: input.classesId,
       inscription: input.inscription,
       month: input.month,
       state: input.state,
@@ -37,14 +36,11 @@ export async function getPricesByIdClasses(id:number, paginationDto: PaginationD
   try {
 
     const [total, prices] = await Promise.all([
-      prisma.price.count({ where: { AND:[{classesId:id},{state: true} ] } }),
+      prisma.price.count({ where: { AND:[{state: true} ] } }),
       prisma.price.findMany({
-        where: { AND:[{classesId:id},{state: true} ] },
+        where: { AND:[{state: true} ] },
         skip: (page - 1) * limit,
         take: limit,
-        include: {
-          classes: true,
-        }
       }),
     ]);
 
@@ -75,9 +71,6 @@ export async function getPrices(paginationDto: PaginationDto) {
         },
         skip: (page - 1) * limit,
         take: limit,
-        include: {
-          classes: true,
-        }
       }),
     ]);
 
@@ -99,7 +92,6 @@ export async function getPrices(paginationDto: PaginationDto) {
 export async function updatePrice(id:number,input: TPriceInput) {
 	try {
 		const res = await prisma.price.update({where:{id},data:{
-      classesId: input.classesId,
       inscription: input.inscription,
       month: input.month,
       state: input.state,

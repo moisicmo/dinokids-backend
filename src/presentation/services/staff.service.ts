@@ -142,14 +142,14 @@ export class StaffService {
     }
   }
 
-  async deleteStaff(user: UserEntity, categoryId: number) {
+  async deleteStaff(user: UserEntity, staffId: number) {
     const staffExists = await prisma.staffs.findFirst({
-      where: { id: categoryId },
+      where: { id: staffId },
     });
     if (!staffExists) throw CustomError.badRequest('El staff no existe');
     try {
       await prisma.staffs.update({
-        where: { id: categoryId },
+        where: { id: staffId },
         data: {
           state: false,
         },

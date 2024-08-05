@@ -74,11 +74,10 @@ export class RoleService {
     }
   }
 
-  async updateRole(createRoleDto: RoleDto, user: UserEntity, roleId: number) {
-    const { name, permissions } = createRoleDto;
+  async updateRole(dto: RoleDto, user: UserEntity, roleId: number) {
     const existingRoleWithName = await prisma.roles.findFirst({
       where: {
-        AND: [{ name: name }, { NOT: { id: roleId } }],
+        AND: [{ name: dto.name }, { NOT: { id: roleId } }],
       },
     });
     if (existingRoleWithName)
@@ -95,12 +94,14 @@ export class RoleService {
       const role = await prisma.roles.update({
         where: { id: roleId },
         data: {
-          name,
+          name: dto.name,
           permissions: {
             disconnect: roleExists.permissions.map((permission) => ({
               id: permission.id,
             })),
-            connect: permissions.map((permissionId) => ({ id: permissionId })),
+            connect: dto.permissions.map((permissionId) => ({
+              id: permissionId,
+            })),
           },
         },
         include: {

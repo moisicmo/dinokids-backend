@@ -1,4 +1,4 @@
-import { BranchEntity, StaffEntity, StudentEntity, SubjectEntity, PriceEntity } from '..';
+import { StaffEntity, StudentEntity, PriceEntity, RoomEntity } from '..';
 import { TMonthlyfeeInput } from '../../schemas/monthlyFee.schema';
 
 export class InscriptionEntity {
@@ -9,10 +9,9 @@ export class InscriptionEntity {
     public createdAt: Date,
     public student?: StudentEntity,
     public staff?: StaffEntity,
-    public subject?: SubjectEntity,
-    public branch?: BranchEntity,
     public price?: PriceEntity,
     public monthlyFee?: any,
+    public rooms?: RoomEntity[],
   ) {}
 
   static fromObject(object: { [key: string]: any }) {
@@ -23,18 +22,16 @@ export class InscriptionEntity {
       createdAt,
       student,
       staff,
-      subject,
-      branch,
       price,
       monthlyFee,
+      rooms,
     } = object;
     const studentEntity = StudentEntity.fromObject(student);
     const staffEntity = StaffEntity.fromObject(staff);
-    const subjectEntity = SubjectEntity.fromObject(subject);
-    const branchEntity = BranchEntity.fromObject(branch);
     const priceEntity = PriceEntity.fromObject(price);
     const monthlyFeeEntity = monthlyFee;
     
+    const roomsEntity = rooms ? rooms.map((e:RoomEntity)=>RoomEntity.fromObject(e)) : undefined;
 
     return new InscriptionEntity(
       id,
@@ -43,10 +40,9 @@ export class InscriptionEntity {
       createdAt,
       studentEntity,
       staffEntity,
-      subjectEntity,
-      branchEntity,
       priceEntity,
       monthlyFee,
+      roomsEntity,
     );
   }
 }

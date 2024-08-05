@@ -1,13 +1,29 @@
 const pdfMakeX = require('pdfmake');
 import { format } from 'date-fns';
 import esES from 'date-fns/locale/es';
-
+import fs from 'fs';
+import path from 'path';
 import { InscriptionEntity } from '../../../domain';
-import { numberToString } from '../..';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+
+const generateTable = (label: string, value: string): any => ({
+  table: {
+    widths: ['*'],
+    body: [
+      [{ text: value, style: 'styleCenter' }],
+      [
+        {
+          text: '____________________',
+          style: 'styleCenter',
+        },
+      ],
+      [{ text: label, style: 'styleCenter' }],
+    ],
+  },
+  layout: 'noBorders',
+});
 
 export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
-
-  //console.log("pdfinscription:",inscriptionEntity)
   const fonts = {
     Roboto: {
       normal: 'Helvetica',
@@ -18,126 +34,39 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
   };
 
   const printer = new pdfMakeX(fonts);
-  const docDefinition = {
+
+  // Read the image from the file system
+  const imagePath = path.join(__dirname, '../../../../assets/logo.png');
+  const imageBase64 = fs.readFileSync(imagePath).toString('base64');
+
+  const docDefinition: TDocumentDefinitions = {
     pageSize: 'LETTER',
     pageMargins: [40, 50, 40, 50],
     defaultStyle: {
       fontSize: 12,
     },
     content: [
+
       {
-        margin: [0, 30, 0, 0],
+        margin: [0, 30, 5, 0],
         layout: 'noBorders',
         table: {
-          widths: ['*', '*'],
-          body: [
-            [
-              { text: 'DINO KIDS', style: 'styleLeft' },
-              {
-                text: `COMPROBANTE N° ${inscriptionEntity.id}`,
-                style: 'styleRight',
-              },
-            ],
-            [
-              {
-                text: 'SUCURSAL ',
-                style: 'styleLeft',
-                colSpan: 2,
-              },
-            ],
-            // [{ text: 'CENTRO DE ESTUDIANTES', style: 'styleLeft', colSpan: 2 }],
-          ],
-        },
-      },
-      {
-        margin: [0, 30, 0, 0],
-        text: 'COMPROVANTE DE PAGO',
-        fontSize: 24,
-        alignment: 'center',
-        bold: true,
-      },
-      {
-        margin: [0, 30, 0, 0],
-        layout: 'noBorders',
-        table: {
-          widths: ['auto', '*'],
-          body: [
-            [
-              { text: 'Fecha:', style: 'styleLeft', bold: true },
-              `${format(inscriptionEntity.createdAt, 'dd MMMM yyyy', {
-                locale: esES,
-              })}`,
-            ],
-            [
-              { text: 'Estudiante:', style: 'styleLeft', bold: true },
-              `${inscriptionEntity.student?.name} ${inscriptionEntity.student?.lastName}`,
-            ],
-            [
-              { text: 'Código de estudiante:', style: 'styleLeft', bold: true },
-              `${inscriptionEntity.student?.code}`,
-            ],
-            [
-              { text: 'Emitido por:', style: 'styleLeft', bold: true },
-              `${inscriptionEntity.staff?.name} ${inscriptionEntity.staff?.lastName}`,
-            ],
-          ],
-        },
-      },
-      {
-        margin: [0, 30, 0, 0],
-        layout: {
-          hLineWidth: function () {
-            return 1;
-          },
-          vLineWidth: function () {
-            return 0;
-          },
-        },
-        table: {
-          widths: ['8%', '*', '14%', '14%'],
+          widths: ['*', '30%'],
           body: [
             [
               {
-                text: 'CANT.',
+                margin: [0, 0, 0, 0],
+                text: 'Ficha de Inscripción',
+                fontSize: 24,
+                alignment: 'center',
                 bold: true,
-                style: 'styleRight',
-                margin: [1, 3, 1, 3],
               },
               {
-                text: 'DESCRIPCIÓN',
-                bold: true,
-                style: 'styleLeft',
-                margin: [1, 3, 1, 3],
-              },
-              {
-                text: 'PRECIO',
-                bold: true,
-                style: 'styleRight',
-                margin: [1, 3, 1, 3],
-              },
-              {
-                text: 'SUBTOTAL',
-                bold: true,
-                style: 'styleRight',
-                margin: [1, 3, 1, 3],
-              },
-            ],
-            [
-              { text: `1`, style: 'styleRight', margin: [1, 3, 1, 3] },
-              {
-                text: `INSCRIPCIÓN`,
-                style: 'styleCenter',
-                margin: [1, 3, 1, 3],
-              },
-              {
-                text: `${inscriptionEntity.total}`,
-                style: 'styleRight',
-                margin: [1, 3, 1, 3],
-              },
-              {
-                text: `${inscriptionEntity.total}`,
-                style: 'styleRight',
-                margin: [1, 3, 1, 3],
+                // Image in the top right corner
+                image: `data:image/png;base64,${imageBase64}`,
+                width: 100, // Adjust width as needed
+                alignment: 'right',
+                margin: [0, 0, 0, 0], // Adjust margin as needed
               },
             ],
           ],
@@ -151,31 +80,163 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
           body: [
             [
               {
-                text: `Son: ${numberToString(
-                  inscriptionEntity.total
-                )} 00/100 Bolivianos`,
-                style: 'styleLeft',
+                text: 'Correspondiente este documento al número de cliente:',
+                style: 'stylePagrafer',
               },
               {
-                layout: 'noBorders',
-                table: {
-                  widths: ['*', 'auto'],
-                  body: [
-                    [
-                      { text: 'TOTAL A PAGAR:', style: 'styleRight' },
-                      `${inscriptionEntity.total}`,
-                    ],
-                  ],
-                },
+                text: 'Cod: 14151617',
+                style: 'stylePagrafer',
               },
             ],
           ],
         },
       },
+      {
+        text: 'Primera DINO KIDS - Desarrollo Infantil Neuro Psicológico Orientado se se compromete a lo siguiente:',
+        style: 'stylePagrafer',
+      },
+      {
+        text: '1.- Brindar evaluaciones periódicas, para tratar dificultades de aprendizaje utilizando un método de capacitación 100% garantizado adecuado a cada caso.',
+        style: 'stylePagrafer',
+      },
+      {
+        text: '2.- El programa es anual, sin embargo el tiempo de duración de cada módulo es de 6 meses.',
+        style: 'stylePagrafer',
+      },
+      {
+        text: '3.- Al finalizar el programa se le otorgara un informe de avanze y/o resultados.',
+        style: 'stylePagrafer',
+      },
+      {
+        text: 'Segunda: Los datos del titular y del alumno son:',
+        style: 'stylePagrafer',
+      },
+      {
+        margin: [0, 20, 0, 0],
+        text: 'Datos del tutor:',
+      },
+      {
+        margin: [0, 30, 5, 0],
+        layout: 'noBorders',
+        table: {
+          widths: ['*', '*'],
+          body: [
+            [
+              generateTable(
+                'Nombre del tutor',
+                `${inscriptionEntity.student?.tutors![0].name} ${
+                  inscriptionEntity.student?.tutors![0].lastName
+                }`
+              ),
+              generateTable(
+                'Celular',
+                `${inscriptionEntity.student?.tutors![0].phone}`
+              ),
+            ],
+          ],
+        },
+      },
+      {
+        margin: [0, 30, 5, 0],
+        layout: 'noBorders',
+        table: {
+          widths: ['*', '*'],
+          body: [
+            [
+              generateTable(
+                'Dirección',
+                `${inscriptionEntity.student?.tutors![0].address}`
+              ),
+              generateTable(
+                'Celular de Ref',
+                `${inscriptionEntity.student?.tutors![0].phone}`
+              ),
+            ],
+          ],
+        },
+      },
+      {
+        margin: [0, 20, 0, 0],
+        text: 'Datos del estudiante:',
+      },
+      {
+        margin: [0, 30, 5, 0],
+        layout: 'noBorders',
+        table: {
+          widths: ['*', '*', '*', '*'],
+          body: [
+            [
+              generateTable(
+                'Nombre del estudiante',
+                `${inscriptionEntity.student?.name} ${inscriptionEntity.student?.lastName}`
+              ),
+              generateTable(
+                'Edad',
+                `${inscriptionEntity.student?.tutors![0].phone}`
+              ),
+              generateTable(
+                'Fecha de nacimiento',
+                `${format(
+                  new Date(inscriptionEntity.student!.birthdate),
+                  'dd-MMMM-yyyy',
+                  { locale: esES }
+                )}`
+              ),
+              generateTable('Sexo', `${inscriptionEntity.student!.gender}`),
+            ],
+          ],
+        },
+      },
+      {
+        margin: [0, 30, 5, 0],
+        layout: 'noBorders',
+        table: {
+          widths: ['*', '*', '*', '*'],
+          body: [
+            [
+              generateTable('Programa', `algo`),
+              generateTable(
+                'Inicio de sesión',
+                `${format(new Date(), 'dd-MMMM-yyyy', { locale: esES })}`
+              ),
+              generateTable('Módulo', `1er módulo`),
+              generateTable('Sesiones', ``),
+            ],
+          ],
+        },
+      },
+      {
+        margin: [0, 20, 0, 0],
+        text: 'Método de pago:   Plan Mensual',
+      },
+      {
+        margin: [0, 20, 0, 0],
+        text: 'Los pagos se deben realizarse hasta el 5 de cada mes.',
+      },
+      {
+        table: {
+          widths: ['*'],
+          body: [
+            [
+              {
+                text: '____________________',
+                style: 'styleCenter',
+              },
+            ],
+            [{ text: 'Firma del tutor principal', style: 'styleCenter' }],
+          ],
+        },
+        layout: 'noBorders',
+      },
     ],
     styles: {
+      stylePagrafer: {
+        margin: [0, 0, 0, 0],
+      },
       styleCenter: {
         alignment: 'center',
+        fontSize: 12,
+        margin: [0, 0, 0, 0],
       },
       styleLeft: {
         alignment: 'left',
@@ -183,8 +244,13 @@ export const generatePdf = async (inscriptionEntity: InscriptionEntity) => {
       styleRight: {
         alignment: 'right',
       },
+      styleLineCentered: {
+        alignment: 'center',
+        fontSize: 12,
+      },
     },
   };
+
   return new Promise((resolve, reject) => {
     const pdfDoc = printer.createPdfKitDocument(docDefinition);
 

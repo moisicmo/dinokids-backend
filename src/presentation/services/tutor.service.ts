@@ -1,20 +1,20 @@
 import { PrismaClient } from '@prisma/client';
-import { TeacherDto, CustomError, PaginationDto, UserEntity, TeacherEntity, CustomSuccessful, } from '../../domain';
+import { TutorDto, CustomError, PaginationDto, UserEntity, TeacherEntity, CustomSuccessful, TutorEntity, } from '../../domain';
 import { bcryptAdapter } from '../../config';
 
 const prisma = new PrismaClient();
 
-export class TeacherService {
+export class TutorService {
 
   constructor() { }
 
-  async getTeachers(paginationDto: PaginationDto) {
+  async getTutors(paginationDto: PaginationDto) {
     const { page, limit } = paginationDto;
     try {
 
-      const [total, teachers] = await Promise.all([
-        prisma.teachers.count({ where: { state: true } }),
-        prisma.teachers.findMany({
+      const [total, tutors] = await Promise.all([
+        prisma.tutors.count({ where: { state: true } }),
+        prisma.tutors.findMany({
           where: {
             state: true,
           },
@@ -30,10 +30,10 @@ export class TeacherService {
         page: page,
         limit: limit,
         total: total,
-        next: `/api/teacher?page=${(page + 1)}&limit=${limit}`,
-        prev: (page - 1 > 0) ? `/api/teacher?page=${(page - 1)}&limit=${limit}` : null,
-        teachers: teachers.map(teacher => {
-          const { ...teacherEntity } = TeacherEntity.fromObject(teacher);
+        next: `/api/tutor?page=${(page + 1)}&limit=${limit}`,
+        prev: (page - 1 > 0) ? `/api/tutor?page=${(page - 1)}&limit=${limit}` : null,
+        tutors: tutors.map(teacher => {
+          const { ...teacherEntity } = TutorEntity.fromObject(teacher);
           return teacherEntity;
         })
       }});
@@ -42,7 +42,7 @@ export class TeacherService {
     }
   }
 
-  async createTeacher(dto: TeacherDto, user: UserEntity) {
+  async createTutor(dto: TutorDto, user: UserEntity) {
 
     try {
 
@@ -69,7 +69,7 @@ export class TeacherService {
         userId = userExists.id;
       }
 
-      const staffExists = await prisma.teachers.findFirst({
+      const staffExists = await prisma.tutors.findFirst({
         where: {
           user: {
             email: dto.email
@@ -78,11 +78,12 @@ export class TeacherService {
         }
       });
 
-      if (staffExists) throw CustomError.badRequest('El docente ya existe');
+      if (staffExists) throw CustomError.badRequest('El tutor ya existe');
 
-      const teacher = await prisma.teachers.create({
+      const teacher = await prisma.tutors.create({
         data: {
           userId: userId,
+          address: dto.address,
         },
         include: {
           user: true,
@@ -99,27 +100,27 @@ export class TeacherService {
     }
   }
 
-  async updateTeacher(updateTeacherDto: TeacherDto, user: UserEntity, teacherId: number) {
-    const teacherExists = await prisma.teachers.findFirst({
-      where: { id: teacherId },
+  async updateTutor(dto: TutorDto, user: UserEntity, tutorId: number) {
+    const teacherExists = await prisma.tutors.findFirst({
+      where: { id: tutorId },
       include: {
         user: true,
       }
     });
-    if (!teacherExists) throw CustomError.badRequest('El docente no existe');
+    if (!teacherExists) throw CustomError.badRequest('El tutor no existe');
 
     try {
 
       await prisma.users.update({
         where: { id: teacherExists.userId },
         data: {
-          ...updateTeacherDto,
+          ...dto,
           password: await bcryptAdapter.hash(teacherExists.user.password),
         }
       });
 
-      const teacher = await prisma.teachers.update({
-        where: { id: teacherId },
+      const teacher = await prisma.tutors.update({
+        where: { id: tutorId },
         data: {
           // ...updateTeacherDto,
         },
@@ -135,19 +136,19 @@ export class TeacherService {
     }
   }
 
-  async deleteTeacher(user: UserEntity, teacherId: number) {
-    const teacherExists = await prisma.teachers.findFirst({
-      where: { id: teacherId },
+  async deleteTutor(user: UserEntity, tutorId: number) {
+    const tutorExists = await prisma.tutors.findFirst({
+      where: { id: tutorId },
     });
-    if (!teacherExists) throw CustomError.badRequest('El docente no existe');
+    if (!tutorExists) throw CustomError.badRequest('El tutor no existe');
     try {
-      await prisma.teachers.update({
-        where: { id: teacherId },
+      await prisma.tutors.update({
+        where: { id: tutorId },
         data: {
           state: false,
         },
       });
-      return CustomSuccessful.response({ message: 'Docente eliminado' });
+      return CustomSuccessful.response({ message: 'Tutor eliminado' });
     } catch (error) {
       throw CustomError.internalServer(`${error}`);
     }

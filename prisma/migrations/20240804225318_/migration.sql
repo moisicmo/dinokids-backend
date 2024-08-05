@@ -1,6 +1,15 @@
 -- CreateEnum
 CREATE TYPE "PayMethod" AS ENUM ('CASH', 'BANK', 'QR');
 
+-- CreateEnum
+CREATE TYPE "DayOfWeek" AS ENUM ('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY');
+
+-- CreateEnum
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
+
+-- CreateEnum
+CREATE TYPE "EducationLevel" AS ENUM ('PRIMARY', 'SECONDARY');
+
 -- CreateTable
 CREATE TABLE "Branches" (
     "id" SERIAL NOT NULL,
@@ -74,6 +83,11 @@ CREATE TABLE "Students" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "code" TEXT NOT NULL,
+    "birthdate" TIMESTAMP(3) NOT NULL,
+    "gender" "Gender" NOT NULL,
+    "school" VARCHAR(255) NOT NULL,
+    "grade" INTEGER NOT NULL,
+    "educationLevel" "EducationLevel" NOT NULL,
     "state" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -85,6 +99,7 @@ CREATE TABLE "Students" (
 CREATE TABLE "Tutors" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
+    "address" VARCHAR(255) NOT NULL,
     "state" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -108,8 +123,6 @@ CREATE TABLE "Inscriptions" (
     "id" SERIAL NOT NULL,
     "studentId" INTEGER NOT NULL,
     "staffId" INTEGER NOT NULL,
-    "subjectId" INTEGER NOT NULL,
-    "branchId" INTEGER NOT NULL,
     "priceId" INTEGER NOT NULL,
     "total" INTEGER NOT NULL,
     "url" VARCHAR(255),
@@ -121,46 +134,25 @@ CREATE TABLE "Inscriptions" (
 );
 
 -- CreateTable
-CREATE TABLE "Subjects" (
-    "id" SERIAL NOT NULL,
-    "categoryId" INTEGER NOT NULL,
-    "name" VARCHAR(255) NOT NULL,
-    "code" VARCHAR(255) NOT NULL,
-    "state" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Subjects_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Categories" (
+CREATE TABLE "Specialties" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "state" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Categories_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Modules" (
-    "id" SERIAL NOT NULL,
-    "subjectId" INTEGER NOT NULL,
-    "name" VARCHAR(255) NOT NULL,
-    "state" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Modules_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Specialties_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Rooms" (
     "id" SERIAL NOT NULL,
     "branchId" INTEGER NOT NULL,
+    "teacherId" INTEGER NOT NULL,
+    "specialtyId" INTEGER NOT NULL,
     "name" VARCHAR(255) NOT NULL,
+    "capacity" INTEGER NOT NULL,
+    "rangeYears" JSONB NOT NULL,
     "state" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -169,25 +161,20 @@ CREATE TABLE "Rooms" (
 );
 
 -- CreateTable
-CREATE TABLE "Classes" (
+CREATE TABLE "Schedules" (
     "id" SERIAL NOT NULL,
     "roomId" INTEGER NOT NULL,
-    "teacherId" INTEGER NOT NULL,
-    "moduleId" INTEGER NOT NULL,
-    "name" VARCHAR(255) NOT NULL,
-    "start" DATE NOT NULL,
-    "end" DATE NOT NULL,
+    "day" "DayOfWeek" NOT NULL,
+    "start" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "end" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "state" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Classes_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Schedules_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Price" (
     "id" SERIAL NOT NULL,
-    "classesId" INTEGER NOT NULL,
     "inscription" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
     "month" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
     "state" BOOLEAN NOT NULL DEFAULT true,
@@ -239,16 +226,10 @@ CREATE TABLE "Invoice" (
     "issuerNIT" TEXT NOT NULL,
     "buyerNIT" TEXT NOT NULL,
     "buyerName" TEXT NOT NULL,
-    "studentID" INTEGER NOT NULL,
+    "studentId" INTEGER NOT NULL,
     "monthlyFeeId" INTEGER,
 
     CONSTRAINT "Invoice_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "_BranchesToSubjects" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL
 );
 
 -- CreateTable
@@ -282,7 +263,7 @@ CREATE TABLE "_StudentsToTutors" (
 );
 
 -- CreateTable
-CREATE TABLE "_ClassesToStudents" (
+CREATE TABLE "_InscriptionsToRooms" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
 );
@@ -310,12 +291,6 @@ CREATE UNIQUE INDEX "Tutors_userId_key" ON "Tutors"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Teachers_userId_key" ON "Teachers"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_BranchesToSubjects_AB_unique" ON "_BranchesToSubjects"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_BranchesToSubjects_B_index" ON "_BranchesToSubjects"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_BranchesToStudents_AB_unique" ON "_BranchesToStudents"("A", "B");
@@ -348,10 +323,10 @@ CREATE UNIQUE INDEX "_StudentsToTutors_AB_unique" ON "_StudentsToTutors"("A", "B
 CREATE INDEX "_StudentsToTutors_B_index" ON "_StudentsToTutors"("B");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_ClassesToStudents_AB_unique" ON "_ClassesToStudents"("A", "B");
+CREATE UNIQUE INDEX "_InscriptionsToRooms_AB_unique" ON "_InscriptionsToRooms"("A", "B");
 
 -- CreateIndex
-CREATE INDEX "_ClassesToStudents_B_index" ON "_ClassesToStudents"("B");
+CREATE INDEX "_InscriptionsToRooms_B_index" ON "_InscriptionsToRooms"("B");
 
 -- AddForeignKey
 ALTER TABLE "Staffs" ADD CONSTRAINT "Staffs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -363,6 +338,9 @@ ALTER TABLE "Staffs" ADD CONSTRAINT "Staffs_roleId_fkey" FOREIGN KEY ("roleId") 
 ALTER TABLE "Students" ADD CONSTRAINT "Students_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Tutors" ADD CONSTRAINT "Tutors_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Teachers" ADD CONSTRAINT "Teachers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -372,34 +350,19 @@ ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_studentId_fkey" FOREIGN 
 ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "Staffs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subjects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Inscriptions" ADD CONSTRAINT "Inscriptions_priceId_fkey" FOREIGN KEY ("priceId") REFERENCES "Price"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Subjects" ADD CONSTRAINT "Subjects_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Modules" ADD CONSTRAINT "Modules_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subjects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Rooms" ADD CONSTRAINT "Rooms_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Classes" ADD CONSTRAINT "Classes_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Rooms" ADD CONSTRAINT "Rooms_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teachers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Classes" ADD CONSTRAINT "Classes_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teachers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Rooms" ADD CONSTRAINT "Rooms_specialtyId_fkey" FOREIGN KEY ("specialtyId") REFERENCES "Specialties"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Classes" ADD CONSTRAINT "Classes_moduleId_fkey" FOREIGN KEY ("moduleId") REFERENCES "Modules"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Price" ADD CONSTRAINT "Price_classesId_fkey" FOREIGN KEY ("classesId") REFERENCES "Classes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Schedules" ADD CONSTRAINT "Schedules_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MonthlyFee" ADD CONSTRAINT "MonthlyFee_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Students"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -411,16 +374,10 @@ ALTER TABLE "MonthlyFee" ADD CONSTRAINT "MonthlyFee_inscriptionId_fkey" FOREIGN 
 ALTER TABLE "MonthlyFeePayment" ADD CONSTRAINT "MonthlyFeePayment_monthlyFeeId_fkey" FOREIGN KEY ("monthlyFeeId") REFERENCES "MonthlyFee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_studentID_fkey" FOREIGN KEY ("studentID") REFERENCES "Students"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Students"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_monthlyFeeId_fkey" FOREIGN KEY ("monthlyFeeId") REFERENCES "MonthlyFee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_BranchesToSubjects" ADD CONSTRAINT "_BranchesToSubjects_A_fkey" FOREIGN KEY ("A") REFERENCES "Branches"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_BranchesToSubjects" ADD CONSTRAINT "_BranchesToSubjects_B_fkey" FOREIGN KEY ("B") REFERENCES "Subjects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_BranchesToStudents" ADD CONSTRAINT "_BranchesToStudents_A_fkey" FOREIGN KEY ("A") REFERENCES "Branches"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -453,7 +410,7 @@ ALTER TABLE "_StudentsToTutors" ADD CONSTRAINT "_StudentsToTutors_A_fkey" FOREIG
 ALTER TABLE "_StudentsToTutors" ADD CONSTRAINT "_StudentsToTutors_B_fkey" FOREIGN KEY ("B") REFERENCES "Tutors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_ClassesToStudents" ADD CONSTRAINT "_ClassesToStudents_A_fkey" FOREIGN KEY ("A") REFERENCES "Classes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_InscriptionsToRooms" ADD CONSTRAINT "_InscriptionsToRooms_A_fkey" FOREIGN KEY ("A") REFERENCES "Inscriptions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_ClassesToStudents" ADD CONSTRAINT "_ClassesToStudents_B_fkey" FOREIGN KEY ("B") REFERENCES "Students"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_InscriptionsToRooms" ADD CONSTRAINT "_InscriptionsToRooms_B_fkey" FOREIGN KEY ("B") REFERENCES "Rooms"("id") ON DELETE CASCADE ON UPDATE CASCADE;

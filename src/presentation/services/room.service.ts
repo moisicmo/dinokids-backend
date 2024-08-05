@@ -24,6 +24,12 @@ export class RoomService {
           },
           include:{
             branch:true,
+            specialty: true,
+            teacher: {
+              include:{
+                user:true,
+              }
+            },
           },
           skip: (page - 1) * limit,
           take: limit,
@@ -64,6 +70,12 @@ export class RoomService {
         },
         include:{
           branch:true,
+          specialty: true,
+          teacher: {
+            include:{
+              user:true,
+            }
+          },
         },
       });
 
@@ -102,6 +114,12 @@ export class RoomService {
         },
         include:{
           branch:true,
+          specialty: true,
+          teacher: {
+            include:{
+              user:true,
+            }
+          },
         },
       });
       const { ...roomEntity } = RoomEntity.fromObject(room);

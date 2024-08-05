@@ -27,6 +27,11 @@ export class StudentService {
           take: limit,
           include: {
             user: true,
+            tutors: {
+              include:{
+                user:true,
+              }
+            },
           },
         }),
       ]);
@@ -41,6 +46,7 @@ export class StudentService {
               ? `/api/student?page=${page - 1}&limit=${limit}`
               : null,
           students: students.map((student) => {
+            console.log(student);
             const { ...studentEntity } = StudentEntity.fromObject(student);
             return studentEntity;
           }),
@@ -51,11 +57,12 @@ export class StudentService {
     }
   }
 
-  async createStudent(createStudentDto: StudentDto, user: UserEntity) {
+  async createStudent(dto: StudentDto, user: UserEntity) {
     try {
+      const {dni,name,lastName,email,tutors,...studentDto} = dto;
       const userExists = await prisma.users.findFirst({
         where: {
-          email: createStudentDto.email,
+          email: email,
         },
       });
 
@@ -63,12 +70,12 @@ export class StudentService {
       if (!userExists) {
         const user = await prisma.users.create({
           data: {
-            dni: createStudentDto.dni,
-            name: createStudentDto.name,
-            lastName: createStudentDto.lastName,
-            email: createStudentDto.email,
+            dni: dni,
+            name: name,
+            lastName: lastName,
+            email: email,
             phone: '5917373566',
-            password: await bcryptAdapter.hash(createStudentDto.email), // Hasheamos la contraseña
+            password: await bcryptAdapter.hash(dto.email), // Hasheamos la contraseña
           },
         });
         userId = user.id;
@@ -79,7 +86,7 @@ export class StudentService {
       const staffExists = await prisma.students.findFirst({
         where: {
           user: {
-            email: createStudentDto.email,
+            email: dto.email,
           },
           state: true,
         },
@@ -89,11 +96,25 @@ export class StudentService {
 
       const student = await prisma.students.create({
         data: {
-          code: createStudentDto.dni,
+          ...studentDto,
+          code: dni,
           userId: userId,
+          // birthdate:dto.birthdate,
+          // gender: dto.gender,
+          // school: dto.school,
+          // grade: dto.grade,
+          // educationLevel: dto.educationLevel,
+          tutors: {
+            connect: tutors.map((tutorsId) => ({ id: tutorsId })),
+          },
         },
         include: {
           user: true,
+          tutors: {
+            include:{
+              user:true,
+            }
+          },
         },
       });
       console.log(student);
@@ -145,14 +166,14 @@ export class StudentService {
     }
   }
 
-  async deleteStudent(user: UserEntity, categoryId: number) {
+  async deleteStudent(user: UserEntity, studentId: number) {
     const studentExists = await prisma.students.findFirst({
-      where: { id: categoryId },
+      where: { id: studentId },
     });
     if (!studentExists) throw CustomError.badRequest('El estudiante no existe');
     try {
       await prisma.students.update({
-        where: { id: categoryId },
+        where: { id: studentId },
         data: {
           state: false,
         },

@@ -36,6 +36,14 @@ async function main() {
       }
     });
 
+    await prisma.branches.create({
+      data: {
+        name: 'Batallón Colorados',
+        address: 'Batallón Colorados 1010',
+        phone: '24629219'
+      }
+    });
+
     await prisma.staffs.create({
       data: {
         userId: user.id,
