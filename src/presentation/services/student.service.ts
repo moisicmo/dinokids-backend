@@ -96,17 +96,12 @@ export class StudentService {
 
       const student = await prisma.students.create({
         data: {
-          ...studentDto,
           code: dni,
           userId: userId,
-          // birthdate:dto.birthdate,
-          // gender: dto.gender,
-          // school: dto.school,
-          // grade: dto.grade,
-          // educationLevel: dto.educationLevel,
           tutors: {
             connect: tutors.map((tutorsId) => ({ id: tutorsId })),
           },
+          ...studentDto,
         },
         include: {
           user: true,
@@ -122,6 +117,7 @@ export class StudentService {
       const { ...studentEntity } = StudentEntity.fromObject(student);
       return CustomSuccessful.response({ result: studentEntity });
     } catch (error) {
+      console.log(error)
       throw CustomError.internalServer(`${error}`);
     }
   }
