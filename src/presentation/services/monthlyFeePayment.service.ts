@@ -67,18 +67,10 @@ export async function getMonthlyFeePayment(paginationDto: PaginationDto) {
   }
 } 
 
-export async function updateMonthlyFeePayment(id:number,input: TMonthlyFeePaymentInput) {
+export async function updateMonthlyFeePayment(id:number,input: any) {
 	try {
-		const res = await prisma.monthlyFeePayment.update({where:{id},data:{
-      monthlyFeeId: input.monthlyFeeId,
-      amount: input.amount,
-      paymentDate: input.paymentDate,
-      commitmentDate: new Date(input.commitmentDate),
-      transactionNumber: input.transactionNumber,
-      isInscription:  input.isInscription,
-      payMethod: input.payMethod,
-    }});
-    return CustomSuccessful.response({ result: res });
+		const res = await prisma.monthlyFeePayment.update({where:{id},data: input});
+    return res
 	} catch (error) {
 		console.log(error)
 		throw CustomError.internalServer('Internal Server Error');

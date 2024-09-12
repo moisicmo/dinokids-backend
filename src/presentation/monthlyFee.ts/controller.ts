@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import { CustomError, PaginationDto, StaffDto,CustomSuccessful } from '../../domain';
-import {createMonthlyFee, getOneMonthlyFee, getOneMonthlyFeeByIdInscriptions,updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee, createMonthlyFeePayment, createInvoice}  from '../services';
+import {createMonthlyFee, getOneMonthlyFee, getOneMonthlyFeeByIdInscriptions,updateMonthlyFee, deleteMonthlyFee, getPricesByIdClasses, getOnePrice, getMonthlyFee, createMonthlyFeePayment, createInvoice, updateInvoice, updateMonthlyFeePayment}  from '../services';
 import { TMonthlyfeeAndMethodPayInput, TMonthlyfeeInput, TMonthlyfeeOutput } from '../../schemas/monthlyFee.schema';
 import { StudentService, InscriptionService } from '../services';
 import { TPriceOutput } from '../../schemas/price';
@@ -9,6 +9,7 @@ import { generatePdf } from '../../config';
 import { generatePayInscriptionPdf } from '../../config/documents/pdf/monthleFee.pdf';
 import { TMonthlyFeePaymentOutput } from '../../schemas/monthlyFeePayment';
 import { TInvoiceOuput } from '../../schemas/invoice.schema';
+import { MonthlyFee, PayMethod } from '@prisma/client';
 
 const handleError = (error: unknown, res: Response) => {
   if (error instanceof CustomError) {
@@ -94,7 +95,7 @@ export async function createMonthlyFeeCtrl(
 	res: Response
 ) {
   const body = req.body;
-  //console.log("body createMonthlyFee:",req.body);
+  console.log("body createMonthlyFee:",req.body);
 	try {
      //find inscription by Id
       let data = await getOneMonthlyFeeByIdInscriptions(body.inscriptionId);
@@ -115,11 +116,11 @@ export async function createMonthlyFeeCtrl(
 
       if (amountPending < 0 ) throw CustomError.badRequest(`revise el pago realizado, la institucion no puede salir deviendo, pago pendiente la clase:${data.amountPending}`);
 
-      body.amountPaid = amountPaid;
+
       body.amountPending = amountPending;
       body.state = amountPending <= 0 ? true : false;
 
-    const   MonthlyFee = await updateMonthlyFee(data.id,{...body} )
+    const   MonthlyFee = await updateMonthlyFee(data.id,{...body, amountPaid} )
 
      //console.log("MOnthlyFee:",MonthlyFee);
     const MonthlyFeePayment = await createMonthlyFeePayment({
@@ -192,7 +193,7 @@ export async function createMonthlyFeeCtrl(
       amount:body.amountPaid,
       paymentDate: new Date(), 
       commitmentDate: new Date(), 
-      isInscription: true, 
+      isInscription: body.isInscription, 
       monthlyFeeId: MonthlyFee.id
     })
     const invoice = await createInvoice({
@@ -252,8 +253,50 @@ export const updateMonthlyFeeCtrl = async (
 
   const body = req.body;
   const id = req.params.id
-  //console.log(id)
+  console.log(id)
   try {
+    const dataMonthlyFee = await getOneMonthlyFee(parseInt(id))
+
+    if (!dataMonthlyFee) throw CustomError.badRequest('El id de la cuota mensual a modificar no existe');
+
+    let AmountPaidPrevious : number;
+    let AmountPendingPrevious : number;
+
+    if(body.amountPaidPrevious == null || undefined && body.amountPendingPrevious == null || undefined && body.monthlyFeePaymentId == null || undefined && body.invoiceId == null || undefined){
+      throw CustomError.badRequest(`necesitamos los valores anteriores amountPaidPrevious y amountPendingPrevious, invoiceId,monthlyFeePaymentId`); 
+    }
+      // control de amount paid anterior
+      AmountPaidPrevious = dataMonthlyFee.amountPaid - body.amountPaidPrevious;
+      //control del amount pending anterior
+      AmountPendingPrevious = dataMonthlyFee.amountPending + body.amountPaidPrevious;
+      
+      //control del nuevo amount Paid
+      const NewAmountPaid = AmountPaidPrevious + body.amountPaid;
+      //control del nuevo Amount pending
+      const NewAmountPending = AmountPendingPrevious - body.amountPaid;
+
+      // modificamos datos MonthlyFee
+      const changeMonthlyFee = await updateMonthlyFee(parseInt(id),{amountPaid:NewAmountPaid,amountPending:NewAmountPending})
+      console.log("changeMonthlyFee:",changeMonthlyFee)
+
+      // Modificamos datos MonthlyPayment
+      const changeMonthlyFeePayment = await updateMonthlyFeePayment(body.monthlyFeePaymentId as number,{amount: body.amountPaid, commitmentDate:new Date(body.commitmentDate), transactionNumber: body.transactionNumber, payMethod: body.payMethod, });
+      console.log("changeMonthlyFeePayment:",changeMonthlyFeePayment)
+      // modificamos datos de invoice
+
+      const changeInvoice = await updateInvoice(body.invoiceId as number,{totalAmount: body.amountPaid, buyerNIT: body.buyerNIT, buyerName:body.buyerName})
+      console.log("changeInvoice:",changeInvoice)
+
+      const document = await generatePayInscriptionPdf({monthleFee:changeMonthlyFee as any,monthlyFeePayment:changeMonthlyFeePayment as TMonthlyFeePaymentOutput,invoice:changeInvoice as any});
+
+    const dataSend =  CustomSuccessful.response({result: {...changeMonthlyFee,invoices: [changeInvoice], payments:[changeMonthlyFeePayment], message:'update', document} });
+    return res.status(201).json(dataSend)
+  } catch (error) {
+    handleError(error, res)
+  }
+
+  
+  /* try {
       // find monthly fee
       const  data = await getOneMonthlyFee(parseInt(id)) as any;
       const dataMonthlyFee:TMonthlyfeeOutput = data.monthlyFee;
@@ -293,7 +336,7 @@ export const updateMonthlyFeeCtrl = async (
 		 return res.status(201).json({MonthlyFee, MonthlyFeePayment})
   } catch (error) {
     handleError(error, res)
-  }
+  } */
 }
 
 export const deleteMonthlyFeeCtrl = async (

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { CustomError, PaginationDto, CustomSuccessful, } from '../../domain';
-import { TMonthlyfeeInput } from '../../schemas/monthlyFee.schema';
+import { TMonthlyfeeInput, TMonthlyfeeOutput } from '../../schemas/monthlyFee.schema';
 
 const prisma = new PrismaClient();
 
@@ -37,7 +37,7 @@ export async function getOneMonthlyFee(id:number) {
   try {
     const monthlyFee = await prisma.monthlyFee.findFirst({where: {id}})
     //console.log("monthlyFee:",monthlyFee)
-    return CustomSuccessful.response({ result: {monthlyFee} });
+    return monthlyFee as TMonthlyfeeOutput;
   } catch (error:any) {
     console.log(error.message)
     throw CustomError.internalServer('Internal Server Error');
@@ -76,8 +76,20 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
             },
           },
           inscriptions:true,
-          payments:true,
-          invoices:true,
+          payments:{
+            orderBy:[
+              {
+                id: 'desc',
+              }
+            ]
+          },
+          invoices:{
+            orderBy:[
+              {
+                id: 'desc',
+              }
+            ]
+          },
         }
       }),
     ]);
@@ -130,18 +142,9 @@ export async function getMonthlyFee(paginationDto: PaginationDto) {
 
 /* */
 
-export async function updateMonthlyFee(id:number,input: TMonthlyfeeInput) {
+export async function updateMonthlyFee(id:number,input: any) {
 	try {
-		const res = await prisma.monthlyFee.update({where:{id},data:{
-      inscriptionId: input.inscriptionId,
-      startDate: new Date(input.startDate),
-      endDate: new Date(input.endDate),
-      totalAmount: input.totalAmount,
-      amountPending: input.amountPending,
-      studentId: input.studentId,
-      amountPaid: input.amountPaid,
-      state: input.state,
-    },
+		const res = await prisma.monthlyFee.update({where:{id},data:input,
     include: {
       student: {
         include:{

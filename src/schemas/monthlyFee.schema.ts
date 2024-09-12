@@ -34,6 +34,10 @@ export const monthlyfeeAndMethodPaySchema = v.object({
   payMethod:        v.enum_(MethodPayEnum),
   buyerNIT: v.string(),
   buyerName: v.string(),
+  amountPaidPrevious: v.optional(v.number()),
+  amountPendingPrevious: v.optional(v.number()),
+  monthlyFeePaymentId: v.optional(v.number()),
+  invoiceId: v.optional(v.number()),
 });
 
 export type TMonthlyfeeAndMethodPayInput = v.InferInput<typeof monthlyfeeAndMethodPaySchema>;  

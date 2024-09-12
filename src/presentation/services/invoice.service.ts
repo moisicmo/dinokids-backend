@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { CustomError, PaginationDto, CustomSuccessful, } from '../../domain';
-import { TInvoiceInput } from '../../schemas/invoice.schema';
+import { TInvoiceInput, TInvoiceOuput } from '../../schemas/invoice.schema';
 
 const prisma = new PrismaClient();
 
@@ -65,10 +65,10 @@ export async function getInvoice(paginationDto: PaginationDto) {
   }
 } 
 
-export async function updateInvoice(id:number,input: TInvoiceInput) {
+export async function updateInvoice(id:number,input:  any) {
 	try {
 		const res = await prisma.invoice.update({where:{id},data: input});
-    return CustomSuccessful.response({ result: res });
+    return res;
 	} catch (error) {
 		console.log(error)
 		throw CustomError.internalServer('Internal Server Error');

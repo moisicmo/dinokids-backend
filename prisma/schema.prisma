@@ -225,7 +225,7 @@ model Invoice {
   controlCode        String
   issueDate          DateTime
   dueDate            DateTime?
-  totalAmount        Decimal
+  totalAmount        Float @default(0.00)
   issuerNIT          String
   buyerNIT           String
   buyerName          String
