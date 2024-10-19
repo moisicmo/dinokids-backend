@@ -49,10 +49,15 @@ export class ScheduleService {
     }
   }
 
-  async createSchedule(createRoomDto: ScheduleDto, user: UserEntity) {
+  async createSchedule(dto: ScheduleDto, user: UserEntity) {
     const roomExists = await prisma.schedules.findFirst({
       where: {
-        ...createRoomDto,
+        days: {
+          hasEvery: dto.days,
+        },
+        start: dto.start,
+        end: dto.end,
+        roomId: dto.roomId,
         state: true,
       },
     });
@@ -60,7 +65,7 @@ export class ScheduleService {
     try {
       const schedule = await prisma.schedules.create({
         data: {
-          ...createRoomDto,
+          ...dto,
         },
       });
 

@@ -30,11 +30,11 @@ export class SpecialtyService {
         prisma.specialties.findMany({
           where: {
             state: true,
-            rooms: {
-              some: {
-                branchId: branchId
-              }
-            }
+            // rooms: {
+            //   some: {
+            //     branchId: branchId
+            //   }
+            // }
           },
           include: {
             rooms: {
@@ -56,7 +56,7 @@ export class SpecialtyService {
           take: limit,
         }),
       ]);
-
+      console.log(specialties)
       return CustomSuccessful.response({
         result: {
           page: page,
@@ -68,6 +68,7 @@ export class SpecialtyService {
               ? `/api/specialty?page=${page - 1}&limit=${limit}`
               : null,
           specialties: specialties.map((specialty) => {
+            console.log(specialty)
             const { ...moduleEntity } = SpecialtyEntity.fromObject(specialty);
             return moduleEntity;
           }),

@@ -138,6 +138,8 @@ CREATE TABLE "Specialties" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "state" BOOLEAN NOT NULL DEFAULT true,
+    "numberSessions" INTEGER NOT NULL,
+    "estimatedSessionCost" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -164,7 +166,7 @@ CREATE TABLE "Rooms" (
 CREATE TABLE "Schedules" (
     "id" SERIAL NOT NULL,
     "roomId" INTEGER NOT NULL,
-    "day" "DayOfWeek" NOT NULL,
+    "days" "DayOfWeek"[],
     "start" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "end" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "state" BOOLEAN NOT NULL DEFAULT true,
@@ -187,13 +189,13 @@ CREATE TABLE "Price" (
 -- CreateTable
 CREATE TABLE "MonthlyFee" (
     "id" SERIAL NOT NULL,
+    "studentId" INTEGER NOT NULL,
+    "inscriptionId" INTEGER NOT NULL,
     "startDate" DATE NOT NULL,
     "endDate" DATE NOT NULL,
     "totalInscription" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
     "totalAmount" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
-    "studentId" INTEGER NOT NULL,
     "amountPaid" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
-    "inscriptionId" INTEGER NOT NULL,
     "amountPending" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
     "state" BOOLEAN NOT NULL DEFAULT true,
 
@@ -203,13 +205,13 @@ CREATE TABLE "MonthlyFee" (
 -- CreateTable
 CREATE TABLE "MonthlyFeePayment" (
     "id" SERIAL NOT NULL,
+    "monthlyFeeId" INTEGER NOT NULL,
     "paymentDate" TIMESTAMP(3) NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
     "commitmentDate" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "transactionNumber" TEXT,
     "isInscription" BOOLEAN NOT NULL DEFAULT false,
     "payMethod" "PayMethod" NOT NULL DEFAULT 'CASH',
-    "monthlyFeeId" INTEGER NOT NULL,
 
     CONSTRAINT "MonthlyFeePayment_pkey" PRIMARY KEY ("id")
 );
@@ -217,7 +219,9 @@ CREATE TABLE "MonthlyFeePayment" (
 -- CreateTable
 CREATE TABLE "Invoice" (
     "id" SERIAL NOT NULL,
-    "invoiceNumber" TEXT NOT NULL,
+    "studentId" INTEGER NOT NULL,
+    "invoiceNumber" SERIAL NOT NULL,
+    "monthlyFeeId" INTEGER,
     "authorizationNumber" TEXT NOT NULL,
     "controlCode" TEXT NOT NULL,
     "issueDate" TIMESTAMP(3) NOT NULL,
@@ -226,8 +230,6 @@ CREATE TABLE "Invoice" (
     "issuerNIT" TEXT NOT NULL,
     "buyerNIT" TEXT NOT NULL,
     "buyerName" TEXT NOT NULL,
-    "studentId" INTEGER NOT NULL,
-    "monthlyFeeId" INTEGER,
 
     CONSTRAINT "Invoice_pkey" PRIMARY KEY ("id")
 );
@@ -291,6 +293,9 @@ CREATE UNIQUE INDEX "Tutors_userId_key" ON "Tutors"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Teachers_userId_key" ON "Teachers"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Invoice_invoiceNumber_key" ON "Invoice"("invoiceNumber");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_BranchesToStudents_AB_unique" ON "_BranchesToStudents"("A", "B");

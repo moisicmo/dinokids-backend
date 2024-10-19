@@ -14,225 +14,226 @@ datasource db {
 }
 
 model Branches {
-  id                  Int                 @id @default(autoincrement())
-  name                String              @db.VarChar(255)
-  address             String              @db.VarChar(255)
-  phone               String              @db.VarChar(255)
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  rooms               Rooms[]
-  students            Students[]
-  teachers            Teachers[]
-  staffs              Staffs[]
+  id                    Int                 @id @default(autoincrement())
+  name                  String              @db.VarChar(255)
+  address               String              @db.VarChar(255)
+  phone                 String              @db.VarChar(255)
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  rooms                 Rooms[]
+  students              Students[]
+  teachers              Teachers[]
+  staffs                Staffs[]
 }
 
 model Users {
-  id                  Int                 @id @default(autoincrement())
-  dni                 String              @unique
-  name                String              @db.VarChar(255)
-  lastName            String              @db.VarChar(255)
-  email               String              @unique
-  emailValidated      Boolean             @default(false)
-  image               String?             @db.VarChar(255)
-  phone               String              @db.VarChar(255)
-  password            String              @db.VarChar(255)
-  sessionToken        String?             @db.VarChar(255)
-  expiresToken        DateTime?           @db.Time()
-  codeValidation      String?             @unique
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  staff               Staffs?
-  student             Students?
-  teacher             Teachers?
-  tutor               Tutors?
+  id                    Int                 @id @default(autoincrement())
+  dni                   String              @unique
+  name                  String              @db.VarChar(255)
+  lastName              String              @db.VarChar(255)
+  email                 String              @unique
+  emailValidated        Boolean             @default(false)
+  image                 String?             @db.VarChar(255)
+  phone                 String              @db.VarChar(255)
+  password              String              @db.VarChar(255)
+  sessionToken          String?             @db.VarChar(255)
+  expiresToken          DateTime?           @db.Time()
+  codeValidation        String?             @unique
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  staff                 Staffs?
+  student               Students?
+  teacher               Teachers?
+  tutor                 Tutors?
 }
 
 model Staffs {
-  id                  Int                 @id @default(autoincrement())
-  userId              Int                 @unique
-  roleId              Int                 @db.Integer
-  state               Boolean             @default(true)
-  superStaff          Boolean             @default(false)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  user                Users               @relation(fields: [userId], references: [id])
-  role                Roles               @relation(fields: [roleId], references: [id])
-  inscriptions        Inscriptions[]
-  branches            Branches[]
+  id                    Int                 @id @default(autoincrement())
+  userId                Int                 @unique
+  roleId                Int                 @db.Integer
+  state                 Boolean             @default(true)
+  superStaff            Boolean             @default(false)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  user                  Users               @relation(fields: [userId], references: [id])
+  role                  Roles               @relation(fields: [roleId], references: [id])
+  inscriptions          Inscriptions[]
+  branches              Branches[]
 }
 
 model Permissions {
-  id                  Int                 @id @default(autoincrement())
-  name                String              @db.VarChar(255)
-  module              String              @db.VarChar(255)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  roles               Roles[]
+  id                    Int                 @id @default(autoincrement())
+  name                  String              @db.VarChar(255)
+  module                String              @db.VarChar(255)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  roles                 Roles[]
 }
 
 model Roles {
-  id                  Int                 @id @default(autoincrement())
-  name                String              @db.VarChar(255)
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  permissions         Permissions[]
-  staff               Staffs[]
+  id                    Int                 @id @default(autoincrement())
+  name                  String              @db.VarChar(255)
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  permissions           Permissions[]
+  staff                 Staffs[]
 }
 
 model Students {
-  id                  Int                 @id @default(autoincrement())
-  userId              Int                 @unique
-  code                String              @unique
-  birthdate           DateTime
-  gender              Gender
-  school              String              @db.VarChar(255)
-  grade               Int                 @db.Integer
-  educationLevel      EducationLevel
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  user                Users               @relation(fields: [userId], references: [id])
-  inscriptions        Inscriptions[]
-  branches            Branches[]
-  tutors              Tutors[]
-  monthlyFeeds        MonthlyFee[]
-  invoice             Invoice[] 
+  id                    Int                 @id @default(autoincrement())
+  userId                Int                 @unique
+  code                  String              @unique
+  birthdate             DateTime
+  gender                Gender
+  school                String              @db.VarChar(255)
+  grade                 Int                 @db.Integer
+  educationLevel        EducationLevel
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  user                  Users               @relation(fields: [userId], references: [id])
+  inscriptions          Inscriptions[]
+  branches              Branches[]
+  tutors                Tutors[]
+  monthlyFeeds          MonthlyFee[]
+  invoice               Invoice[] 
 }
 
 model Tutors {
-  id                  Int                 @id @default(autoincrement())
-  userId              Int                 @unique
-  address             String              @db.VarChar(255)
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  user                Users               @relation(fields: [userId], references: [id])
-  students            Students[]
+  id                    Int                 @id @default(autoincrement())
+  userId                Int                 @unique
+  address               String              @db.VarChar(255)
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  user                  Users               @relation(fields: [userId], references: [id])
+  students              Students[]
 }
 
 model Teachers {
-  id                  Int                 @id @default(autoincrement())
-  userId              Int                 @unique
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  user                Users               @relation(fields: [userId], references: [id])
-  branches            Branches[]
-  rooms               Rooms[]
+  id                    Int                 @id @default(autoincrement())
+  userId                Int                 @unique
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  user                  Users               @relation(fields: [userId], references: [id])
+  branches              Branches[]
+  rooms                 Rooms[]
 }
 
 model Inscriptions {
-  id                  Int                 @id @default(autoincrement())
-  studentId           Int                 @db.Integer
-  staffId             Int                 @db.Integer
-  priceId             Int                 @db.Integer
-  total               Int                 @db.Integer
-  url                 String?             @db.VarChar(255)
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  student             Students            @relation(fields: [studentId], references: [id])
-  staff               Staffs              @relation(fields: [staffId], references: [id])
-  price               Price               @relation(fields: [priceId], references: [id])
-  rooms               Rooms[]
-  monthlyFee          MonthlyFee[] 
+  id                    Int                 @id @default(autoincrement())
+  studentId             Int                 @db.Integer
+  staffId               Int                 @db.Integer
+  priceId               Int                 @db.Integer
+  total                 Int                 @db.Integer
+  url                   String?             @db.VarChar(255)
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  student               Students            @relation(fields: [studentId], references: [id])
+  staff                 Staffs              @relation(fields: [staffId], references: [id])
+  price                 Price               @relation(fields: [priceId], references: [id])
+  rooms                 Rooms[]
+  monthlyFee            MonthlyFee[] 
 }
 
-model Specialties {
-  id                  Int                 @id @default(autoincrement())
-  name                String              @db.VarChar(255)
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  rooms               Rooms[]
+model Specialties { 
+  id                    Int                 @id @default(autoincrement())
+  name                  String              @db.VarChar(255)
+  state                 Boolean             @default(true)
+  numberSessions        Int                 @db.Integer
+  estimatedSessionCost  Float               @default(0.00)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  rooms                 Rooms[]
 }
 
 model Rooms {
-  id                  Int                 @id @default(autoincrement())
-  branchId            Int                 @db.Integer
-  teacherId           Int                 @db.Integer
-  specialtyId         Int                 @db.Integer
-  name                String              @db.VarChar(255)
-  capacity            Int                 @db.Integer
-  rangeYears          Json
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  branch              Branches            @relation(fields: [branchId],references: [id])
-  teacher             Teachers            @relation(fields: [teacherId], references: [id])
-  specialty           Specialties         @relation(fields: [specialtyId],references: [id])
-  schedules           Schedules[]
-  inscriptions        Inscriptions[]
+  id                    Int                 @id @default(autoincrement())
+  branchId              Int                 @db.Integer
+  teacherId             Int                 @db.Integer
+  specialtyId           Int                 @db.Integer
+  name                  String              @db.VarChar(255)
+  capacity              Int                 @db.Integer
+  rangeYears            Json
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  branch                Branches            @relation(fields: [branchId],references: [id])
+  teacher               Teachers            @relation(fields: [teacherId], references: [id])
+  specialty             Specialties         @relation(fields: [specialtyId],references: [id])
+  schedules             Schedules[]
+  inscriptions          Inscriptions[]
 }
 
 model Schedules {
-  id                  Int                 @id @default(autoincrement())
-  roomId              Int                 @db.Integer
-  day                 DayOfWeek           
-  start               DateTime            @default(now())
-  end                 DateTime            @default(now())
-  state               Boolean             @default(true)
-  room                Rooms               @relation(fields: [roomId], references: [id])
+  id                    Int                 @id @default(autoincrement())
+  roomId                Int                 @db.Integer
+  days                  DayOfWeek[]           
+  start                 DateTime            @default(now())
+  end                   DateTime            @default(now())
+  state                 Boolean             @default(true)
+  room                  Rooms               @relation(fields: [roomId], references: [id])
 }
 
 model Price{
-  id                  Int                 @id @default(autoincrement())
-  inscription         Float               @default(0.00)
-  month               Float               @default(0.00)
-  state               Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  inscriptions        Inscriptions[]
+  id                    Int                 @id @default(autoincrement())
+  inscription           Float               @default(0.00)
+  month                 Float               @default(0.00)
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  inscriptions          Inscriptions[]
 }
 
 model MonthlyFee {
-  id           Int      @id @default(autoincrement())
-  startDate    DateTime @db.Date
-  endDate      DateTime @db.Date
-  totalInscription Float @default(0.00)
-  totalAmount  Float @default(0.00)
-  studentId    Int
-  amountPaid   Float  @default(0.00)
-  inscriptionId Int
-  amountPending Float @default(0.00)
-  state        Boolean  @default(true)
-  student      Students  @relation(fields: [studentId], references: [id])
-  inscriptions Inscriptions @relation(fields: [inscriptionId], references: [id])
-
-  payments     MonthlyFeePayment[]
-  invoices     Invoice[]
+  id                    Int                 @id @default(autoincrement())
+  studentId             Int                 @db.Integer
+  inscriptionId         Int                 @db.Integer
+  startDate             DateTime            @db.Date
+  endDate               DateTime            @db.Date
+  totalInscription      Float               @default(0.00)
+  totalAmount           Float               @default(0.00)
+  amountPaid            Float               @default(0.00)
+  amountPending         Float               @default(0.00)
+  state                 Boolean             @default(true)
+  student               Students            @relation(fields: [studentId], references: [id])
+  inscriptions          Inscriptions        @relation(fields: [inscriptionId], references: [id])
+  payments              MonthlyFeePayment[] 
+  invoices              Invoice[]
 }
 
 model MonthlyFeePayment {
-  id              Int      @id @default(autoincrement())
-  paymentDate     DateTime
-  amount          Float @default(0.00)
-  commitmentDate  DateTime?   @default(now())
-  transactionNumber String?
-  isInscription Boolean @default(false)
-  payMethod         PayMethod @default(CASH)
-  monthlyFeeId    Int
-  monthlyFee      MonthlyFee @relation(fields: [monthlyFeeId], references: [id])
+  id                    Int                 @id @default(autoincrement())
+  monthlyFeeId          Int                 @db.Integer
+  paymentDate           DateTime
+  amount                Float               @default(0.00)
+  commitmentDate        DateTime?           @default(now())
+  transactionNumber     String?
+  isInscription         Boolean             @default(false)
+  payMethod             PayMethod           @default(CASH)
+  monthlyFee            MonthlyFee          @relation(fields: [monthlyFeeId], references: [id])
 }
 
 
 model Invoice {
-  id                 Int      @id @default(autoincrement())
-  invoiceNumber      Int   @default(autoincrement()) @unique
-  authorizationNumber String
-  controlCode        String
-  issueDate          DateTime
-  dueDate            DateTime?
-  totalAmount        Decimal
-  issuerNIT          String
-  buyerNIT           String
-  buyerName          String
-  studentId          Int
-  student            Students  @relation(fields: [studentId], references: [id])
-  monthlyFeeId       Int?
-  monthlyFee         MonthlyFee? @relation(fields: [monthlyFeeId], references: [id])
+  id                    Int                 @id @default(autoincrement())
+  studentId             Int                 @db.Integer
+  invoiceNumber         Int                 @default(autoincrement()) @unique
+  monthlyFeeId          Int?
+  authorizationNumber   String
+  controlCode           String
+  issueDate             DateTime
+  dueDate               DateTime?
+  totalAmount           Decimal
+  issuerNIT             String
+  buyerNIT              String
+  buyerName             String
+  student               Students            @relation(fields: [studentId], references: [id])
+  monthlyFee            MonthlyFee?         @relation(fields: [monthlyFeeId], references: [id])
 }
 
 

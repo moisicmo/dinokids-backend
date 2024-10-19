@@ -9,7 +9,6 @@ export async function createInvoice(input: TInvoiceInput) {
 		const res = await prisma.invoice.create(
       {
         data:{
-          invoiceNumber:'1',
           ...input,
         }
       });
