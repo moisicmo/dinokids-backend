@@ -123,6 +123,17 @@ model Teachers {
   rooms                 Rooms[]
 }
 
+model Specialties { 
+  id                    Int                 @id @default(autoincrement())
+  name                  String              @db.VarChar(255)
+  numberSessions        Int                 @db.Integer
+  estimatedSessionCost  Float               @default(0.00)
+  state                 Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  rooms                 Rooms[]
+}
+
 model Inscriptions {
   id                    Int                 @id @default(autoincrement())
   studentId             Int                 @db.Integer
@@ -136,19 +147,8 @@ model Inscriptions {
   student               Students            @relation(fields: [studentId], references: [id])
   staff                 Staffs              @relation(fields: [staffId], references: [id])
   price                 Price               @relation(fields: [priceId], references: [id])
-  rooms                 Rooms[]
+  assignmentRooms       AssignmentRooms[]
   monthlyFee            MonthlyFee[] 
-}
-
-model Specialties { 
-  id                    Int                 @id @default(autoincrement())
-  name                  String              @db.VarChar(255)
-  state                 Boolean             @default(true)
-  numberSessions        Int                 @db.Integer
-  estimatedSessionCost  Float               @default(0.00)
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
-  rooms                 Rooms[]
 }
 
 model Rooms {
@@ -166,7 +166,17 @@ model Rooms {
   teacher               Teachers            @relation(fields: [teacherId], references: [id])
   specialty             Specialties         @relation(fields: [specialtyId],references: [id])
   schedules             Schedules[]
-  inscriptions          Inscriptions[]
+  assignmentRooms       AssignmentRooms[]
+}
+
+model AssignmentRooms {
+  id                    Int                 @id @default(autoincrement())
+  inscriptionId         Int                 @db.Integer
+  roomId                Int                 @db.Integer
+  inscriptions          Inscriptions        @relation(fields: [inscriptionId], references: [id])
+  rooms                 Rooms               @relation(fields: [roomId], references: [id]) 
+  assignmentSchedules   AssignmentSchedules[]
+  @@unique([inscriptionId, roomId])
 }
 
 model Schedules {
@@ -176,7 +186,18 @@ model Schedules {
   start                 DateTime            @default(now())
   end                   DateTime            @default(now())
   state                 Boolean             @default(true)
-  room                  Rooms               @relation(fields: [roomId], references: [id])
+  room                  Rooms               @relation(fields: [roomId], references: [id])   
+  assignmentSchedules   AssignmentSchedules[]
+}
+
+model AssignmentSchedules {
+  id                    Int                 @id @default(autoincrement())
+  assignmentRoomId      Int                 @db.Integer
+  scheduleId            Int                 @db.Integer
+  day                   DayOfWeek
+  state                 Boolean             @default(true)
+  assignmentRooms       AssignmentRooms     @relation(fields: [assignmentRoomId], references: [id])
+  schedules             Schedules           @relation(fields: [scheduleId], references: [id])
 }
 
 model Price{

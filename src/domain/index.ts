@@ -14,6 +14,8 @@ export * from './entities/inscription.entity';
 export * from './entities/room.entity';
 export * from './entities/schedule.entity';
 export * from './entities/price.entity';
+export * from './entities/assignmentRoom.entity';
+export * from './entities/assignmentSchedule.entity';
 
 export * from './dtos/branch/branch.dto';
 export * from './dtos/auth/register-user.dto';

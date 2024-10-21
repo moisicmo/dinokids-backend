@@ -1,5 +1,4 @@
-import { StaffEntity, StudentEntity, PriceEntity, RoomEntity } from '..';
-import { TMonthlyfeeInput } from '../../schemas/monthlyFee.schema';
+import { StaffEntity, StudentEntity, PriceEntity, AssignmentRoomEntity } from '..';
 
 export class InscriptionEntity {
   constructor(
@@ -11,7 +10,7 @@ export class InscriptionEntity {
     public staff?: StaffEntity,
     public price?: PriceEntity,
     public monthlyFee?: any,
-    public rooms?: RoomEntity[],
+    public assignmentRooms?: AssignmentRoomEntity[],
   ) {}
 
   static fromObject(object: { [key: string]: any }) {
@@ -24,14 +23,13 @@ export class InscriptionEntity {
       staff,
       price,
       monthlyFee,
-      rooms,
+      assignmentRooms,
     } = object;
     const studentEntity = StudentEntity.fromObject(student);
-    const staffEntity = StaffEntity.fromObject(staff);
-    const priceEntity = PriceEntity.fromObject(price);
+    const staffEntity = staff? StaffEntity.fromObject(staff) : undefined;
+    const priceEntity = price? PriceEntity.fromObject(price) : undefined;
     const monthlyFeeEntity = monthlyFee;
-    
-    const roomsEntity = rooms ? rooms.map((e:RoomEntity)=>RoomEntity.fromObject(e)) : undefined;
+    const assignmentRoomEntity = assignmentRooms ? assignmentRooms.map((e:any)=>AssignmentRoomEntity.fromObject(e)) : undefined;
 
     return new InscriptionEntity(
       id,
@@ -42,7 +40,7 @@ export class InscriptionEntity {
       staffEntity,
       priceEntity,
       monthlyFee,
-      roomsEntity,
+      assignmentRoomEntity,
     );
   }
 }

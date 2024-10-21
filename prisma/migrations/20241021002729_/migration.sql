@@ -119,6 +119,19 @@ CREATE TABLE "Teachers" (
 );
 
 -- CreateTable
+CREATE TABLE "Specialties" (
+    "id" SERIAL NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "numberSessions" INTEGER NOT NULL,
+    "estimatedSessionCost" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
+    "state" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Specialties_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Inscriptions" (
     "id" SERIAL NOT NULL,
     "studentId" INTEGER NOT NULL,
@@ -131,19 +144,6 @@ CREATE TABLE "Inscriptions" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Inscriptions_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Specialties" (
-    "id" SERIAL NOT NULL,
-    "name" VARCHAR(255) NOT NULL,
-    "state" BOOLEAN NOT NULL DEFAULT true,
-    "numberSessions" INTEGER NOT NULL,
-    "estimatedSessionCost" DOUBLE PRECISION NOT NULL DEFAULT 0.00,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Specialties_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -163,6 +163,15 @@ CREATE TABLE "Rooms" (
 );
 
 -- CreateTable
+CREATE TABLE "AssignmentRooms" (
+    "id" SERIAL NOT NULL,
+    "inscriptionId" INTEGER NOT NULL,
+    "roomId" INTEGER NOT NULL,
+
+    CONSTRAINT "AssignmentRooms_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Schedules" (
     "id" SERIAL NOT NULL,
     "roomId" INTEGER NOT NULL,
@@ -172,6 +181,17 @@ CREATE TABLE "Schedules" (
     "state" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Schedules_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AssignmentSchedules" (
+    "id" SERIAL NOT NULL,
+    "assignmentRoomId" INTEGER NOT NULL,
+    "scheduleId" INTEGER NOT NULL,
+    "day" "DayOfWeek" NOT NULL,
+    "state" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "AssignmentSchedules_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -264,12 +284,6 @@ CREATE TABLE "_StudentsToTutors" (
     "B" INTEGER NOT NULL
 );
 
--- CreateTable
-CREATE TABLE "_InscriptionsToRooms" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "Users_dni_key" ON "Users"("dni");
 
@@ -293,6 +307,9 @@ CREATE UNIQUE INDEX "Tutors_userId_key" ON "Tutors"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Teachers_userId_key" ON "Teachers"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AssignmentRooms_inscriptionId_roomId_key" ON "AssignmentRooms"("inscriptionId", "roomId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Invoice_invoiceNumber_key" ON "Invoice"("invoiceNumber");
@@ -326,12 +343,6 @@ CREATE UNIQUE INDEX "_StudentsToTutors_AB_unique" ON "_StudentsToTutors"("A", "B
 
 -- CreateIndex
 CREATE INDEX "_StudentsToTutors_B_index" ON "_StudentsToTutors"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_InscriptionsToRooms_AB_unique" ON "_InscriptionsToRooms"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_InscriptionsToRooms_B_index" ON "_InscriptionsToRooms"("B");
 
 -- AddForeignKey
 ALTER TABLE "Staffs" ADD CONSTRAINT "Staffs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -367,7 +378,19 @@ ALTER TABLE "Rooms" ADD CONSTRAINT "Rooms_teacherId_fkey" FOREIGN KEY ("teacherI
 ALTER TABLE "Rooms" ADD CONSTRAINT "Rooms_specialtyId_fkey" FOREIGN KEY ("specialtyId") REFERENCES "Specialties"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "AssignmentRooms" ADD CONSTRAINT "AssignmentRooms_inscriptionId_fkey" FOREIGN KEY ("inscriptionId") REFERENCES "Inscriptions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AssignmentRooms" ADD CONSTRAINT "AssignmentRooms_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Schedules" ADD CONSTRAINT "Schedules_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AssignmentSchedules" ADD CONSTRAINT "AssignmentSchedules_assignmentRoomId_fkey" FOREIGN KEY ("assignmentRoomId") REFERENCES "AssignmentRooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AssignmentSchedules" ADD CONSTRAINT "AssignmentSchedules_scheduleId_fkey" FOREIGN KEY ("scheduleId") REFERENCES "Schedules"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MonthlyFee" ADD CONSTRAINT "MonthlyFee_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Students"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -413,9 +436,3 @@ ALTER TABLE "_StudentsToTutors" ADD CONSTRAINT "_StudentsToTutors_A_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "_StudentsToTutors" ADD CONSTRAINT "_StudentsToTutors_B_fkey" FOREIGN KEY ("B") REFERENCES "Tutors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_InscriptionsToRooms" ADD CONSTRAINT "_InscriptionsToRooms_A_fkey" FOREIGN KEY ("A") REFERENCES "Inscriptions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_InscriptionsToRooms" ADD CONSTRAINT "_InscriptionsToRooms_B_fkey" FOREIGN KEY ("B") REFERENCES "Rooms"("id") ON DELETE CASCADE ON UPDATE CASCADE;

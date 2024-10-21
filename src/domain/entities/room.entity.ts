@@ -9,13 +9,14 @@ export class RoomEntity {
     public branch?: BranchEntity,
     public teacher?: TeacherEntity,
     public specialty?: SpecialtyEntity,
+    public eventSelects?: any,
   ) {}
 
   static fromObject(object: { [key: string]: any }) {
-    const { id, name, capacity, rangeYears, branch, teacher, specialty } = object;
+    const { id, name, capacity, rangeYears, branch, teacher, specialty, eventSelects } = object;
     const branchEntity = BranchEntity.fromObject(branch);
     const teacherEntity = TeacherEntity.fromObject(teacher) ?? undefined;
     const specialtyEntity = SpecialtyEntity.fromObject(specialty) ?? undefined;
-    return new RoomEntity(id, name, capacity, rangeYears, branchEntity, teacherEntity,specialtyEntity);
+    return new RoomEntity(id, name, capacity, rangeYears, branchEntity, teacherEntity,specialtyEntity, eventSelects);
   }
 }

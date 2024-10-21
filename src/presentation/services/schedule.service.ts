@@ -25,9 +25,28 @@ export class ScheduleService {
           },
           skip: (page - 1) * limit,
           take: limit,
+          include:{
+            assignmentSchedules:{
+              include:{
+                assignmentRooms:{
+                  include:{
+                    inscriptions:{
+                      include:{
+                        student: {
+                          include: {
+                            user: true,
+                          },
+                        },
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }),
       ]);
-
+      console.log(JSON.stringify(schedules));
       return CustomSuccessful.response({
         result: {
           page: page,
@@ -45,6 +64,7 @@ export class ScheduleService {
         },
       });
     } catch (error) {
+      console.log(error)
       throw CustomError.internalServer('Internal Server Error');
     }
   }
@@ -67,6 +87,25 @@ export class ScheduleService {
         data: {
           ...dto,
         },
+        include:{
+          assignmentSchedules:{
+            include:{
+              assignmentRooms:{
+                include:{
+                  inscriptions:{
+                    include:{
+                      student: {
+                        include: {
+                          user: true,
+                        },
+                      },
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       });
 
       const { ...scheduleEntity } = ScheduleEntity.fromObject(schedule);
